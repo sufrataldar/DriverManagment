@@ -1,0 +1,1373 @@
+<!DOCTYPE html><html lang=ar dir=rtl><head><meta charset=UTF-8><meta name=viewport content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>سفرة الدار | Driver Management</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel=stylesheet><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css><link rel=apple-touch-icon href=https://archive.org/download/20251202_20251202_1107/%D8%B3%D9%81%D8%B1%D8%A9%20%D8%A7%D9%84%D8%AF%D8%A7%D8%B1.jpg><link rel=icon href=https://archive.org/download/20251202_20251202_1107/%D8%B3%D9%81%D8%B1%D8%A9%20%D8%A7%D9%84%D8%AF%D8%A7%D8%B1.jpg><link rel=stylesheet href=https://unpkg.com/leaflet@1.9.4/dist/leaflet.css /><style>:root{--primary:#f60;--primary-dark:#cc5200;--success:#00c851;--success-dark:#00943a;--info:#33b5e5;--warning:#fb3;--danger:#f44;--dark:#121212;--darker:#0a0a0a;--card:#1e1e1e;--card-light:#2a2a2a;--text:#fff;--text-gray:#aaa;--border:#333;--driver-online:#00c851;--driver-busy:#fb3;--driver-offline:#f44}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}html,body{width:100vw;height:100vh;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0}body{font-family:'Cairo',sans-serif;background-color:var(--dark);color:var(--text);position:relative}.app-header{position:fixed;top:0;left:0;right:0;height:60px;background:rgba(18,18,18,0.98);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:1000;display:flex;align-items:center;padding:0 15px;justify-content:space-between}.logo-container{display:flex;align-items:center;gap:10px}.logo{width:40px;height:40px;border-radius:50%;border:2px solid var(--primary);object-fit:cover}.brand-text{font-size:1.1rem;font-weight:900;color:var(--text)}.refresh-btn{width:40px;height:40px;border-radius:50%;background:var(--primary);border:0;color:#000;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .3s ease}.refresh-btn:hover,.refresh-btn:active{transform:rotate(180deg);background:var(--primary-light)}.stats-bar{position:fixed;top:60px;left:0;right:0;height:70px;background:rgba(30,30,30,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:999;display:flex;align-items:center;padding:0 15px;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;scrollbar-width:none}.stats-bar::-webkit-scrollbar{display:none}.stat-item{display:flex;flex-direction:column;align-items:center;padding:0 15px;min-width:100px;flex-shrink:0}.stat-value{font-size:1.3rem;font-weight:900;color:var(--primary);margin-bottom:4px}.stat-label{font-size:.8rem;color:var(--text-gray);text-align:center}.main-container{position:fixed;top:130px;left:0;right:0;bottom:0;display:flex;flex-direction:column;overflow:hidden}.tabs-container{position:relative;background:var(--darker);border-bottom:1px solid var(--border);z-index:10}.tabs{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab-btn{padding:15px 20px;background:transparent;border:0;color:var(--text-gray);font-family:'Cairo';font-weight:700;cursor:pointer;transition:.3s;font-size:.95rem;white-space:nowrap;flex-shrink:0;position:relative}.tab-btn.active{color:var(--primary)}.tab-btn.active::after{content:'';position:absolute;bottom:0;right:20px;left:20px;height:3px;background:var(--primary);border-radius:2px 2px 0 0}.content-area{flex:1;overflow:hidden;position:relative}.tab-content{position:absolute;top:0;left:0;width:100%;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:15px;display:none}.tab-content.active{display:block}.drivers-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}@media(max-width:380px){.drivers-list{grid-template-columns:1fr}}.driver-card{background:var(--card);border-radius:12px;overflow:hidden;border:1px solid var(--border);cursor:pointer;transition:all .3s ease}.driver-card:hover,.driver-card:active{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.3);border-color:var(--primary)}.driver-card.active{border-color:var(--primary);box-shadow:0 0 0 2px rgba(255,102,0,0.3)}.driver-card.online{border-left:4px solid var(--driver-online)}.driver-card.busy{border-left:4px solid var(--driver-busy)}.driver-card.offline{border-left:4px solid var(--driver-offline)}.driver-header{padding:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.2)}.driver-info{display:flex;align-items:center;gap:10px}.driver-avatar{width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,var(--primary) 0,var(--primary-dark) 100%);display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1.2rem}.driver-details{flex:1}.driver-name{font-weight:800;font-size:1rem;margin-bottom:3px}.driver-id{color:var(--text-gray);font-size:.8rem;font-family:monospace}.driver-status{padding:5px 10px;border-radius:15px;font-size:.75rem;font-weight:800;text-align:center;min-width:80px}.status-online{background:rgba(0,200,81,0.2);color:var(--driver-online);border:1px solid var(--driver-online)}.status-busy{background:rgba(255,187,51,0.2);color:var(--driver-busy);border:1px solid var(--driver-busy)}.status-offline{background:rgba(255,68,68,0.2);color:var(--driver-offline);border:1px solid var(--driver-offline)}.driver-body{padding:12px}.driver-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px}.driver-stat{background:var(--card-light);padding:10px;border-radius:8px;text-align:center;border:1px solid var(--border)}.stat-value{font-weight:900;font-size:1.1rem;color:var(--primary);margin-bottom:4px}.stat-label{font-size:.75rem;color:var(--text-gray);margin:0}.driver-current{background:rgba(255,102,0,0.1);border:1px solid rgba(255,102,0,0.2);border-radius:8px;padding:10px;margin-top:8px}.current-label{font-size:.8rem;color:var(--text-gray);margin-bottom:4px}.current-value{font-weight:700;font-size:.9rem}.orders-container{display:flex;flex-direction:column;gap:12px}.order-item{background:var(--card);border-radius:12px;padding:15px;border:1px solid var(--border);transition:all .3s ease}.order-item:hover,.order-item:active{border-color:var(--primary);transform:translateY(-2px)}.order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}.order-id{font-size:1.2rem;font-weight:900;color:var(--primary)}.order-status{padding:5px 10px;border-radius:15px;font-size:.75rem;font-weight:800}.order-ready{background:rgba(0,200,81,0.2);color:var(--driver-online);border:1px solid var(--driver-online)}.order-assigned{background:rgba(255,187,51,0.2);color:var(--driver-busy);border:1px solid var(--driver-busy)}.order-info{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}.info-item{padding:8px;background:var(--card-light);border-radius:6px;border:1px solid var(--border)}.info-label{font-size:.8rem;color:var(--text-gray);margin-bottom:4px}.info-value{font-weight:700;font-size:.9rem}.order-actions{display:flex;gap:8px;margin-top:10px}.action-btn{flex:1;padding:10px;border:0;border-radius:8px;font-family:'Cairo';font-weight:800;cursor:pointer;transition:all .3s ease;font-size:.85rem;display:flex;align-items:center;justify-content:center;gap:6px}.btn-assign{background:linear-gradient(135deg,var(--primary) 0,var(--primary-dark) 100%);color:#000}.btn-assign:hover,.btn-assign:active{background:linear-gradient(135deg,var(--primary-light) 0,var(--primary) 100%);transform:translateY(-2px)}.btn-details{background:var(--card-light);color:var(--text);border:1px solid var(--border)}.btn-details:hover,.btn-details:active{background:var(--border)}.map-container{width:100%;height:100%;position:relative;background:#2a2a2a;border-radius:12px;overflow:hidden}#map{width:100%;height:100%}.map-controls{position:absolute;bottom:15px;right:15px;z-index:1000;display:flex;flex-direction:column;gap:10px}.map-control-btn{width:45px;height:45px;border-radius:50%;background:var(--card);border:2px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:all .3s ease;box-shadow:0 2px 10px rgba(0,0,0,0.3)}.map-control-btn:hover,.map-control-btn:active{background:var(--primary);color:#000;border-color:var(--primary);transform:scale(1.1)}.driver-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);z-index:2000;display:none;align-items:center;justify-content:center;padding:15px}.driver-modal.active{display:flex;animation:fadeIn .3s ease}@keyframes fadeIn{from{opacity:0}to{opacity:1}}.driver-modal-content{background:linear-gradient(135deg,var(--card) 0,var(--darker) 100%);border-radius:20px;width:100%;max-height:85vh;overflow-y:auto;border:2px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,0.5);animation:modalSlideUp .3s ease;-webkit-overflow-scrolling:touch}@keyframes modalSlideUp{from{opacity:0;transform:translateY(50px)}to{opacity:1;transform:translateY(0)}}.driver-modal-header{padding:18px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.2);position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center}.driver-modal-title{display:flex;align-items:center;gap:12px}.modal-avatar{width:55px;height:55px;border-radius:50%;background:linear-gradient(135deg,var(--primary) 0,var(--primary-dark) 100%);display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1.4rem}.modal-name{font-size:1.4rem;font-weight:900}.close-modal{width:38px;height:38px;border-radius:50%;background:var(--card-light);border:0;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:.3s}.close-modal:hover,.close-modal:active{background:var(--danger);color:white;transform:rotate(90deg)}.driver-modal-body{padding:18px}.modal-section{margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid var(--border)}.modal-section:last-child{border-bottom:0;margin-bottom:0}.section-title{font-weight:800;font-size:1.1rem;color:var(--primary);margin-bottom:12px;display:flex;align-items:center;gap:8px}.modal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.modal-item{background:var(--card-light);padding:12px;border-radius:10px;border:1px solid var(--border)}.modal-label{color:var(--text-gray);font-size:.85rem;margin-bottom:4px}.modal-value{font-weight:700;font-size:1rem}.assign-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);z-index:2000;display:none;align-items:center;justify-content:center;padding:15px}.assign-modal.active{display:flex}.assign-modal-content{background:linear-gradient(135deg,var(--card) 0,var(--darker) 100%);border-radius:20px;padding:25px;width:100%;max-width:450px;max-height:80vh;overflow-y:auto;border:2px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,0.5);animation:modalSlideUp .3s ease;-webkit-overflow-scrolling:touch}.assign-modal-header{text-align:center;margin-bottom:20px}.assign-modal-header h3{font-size:1.6rem;font-weight:900;color:var(--primary);margin-bottom:8px}.assign-modal-header p{color:var(--text-gray);font-size:.9rem}.assign-order-id{font-size:2.2rem;font-weight:900;color:var(--text);text-align:center;margin:15px 0;padding:10px;background:rgba(255,102,0,0.1);border-radius:12px;border:2px solid var(--primary)}.drivers-select{max-height:300px;overflow-y:auto;margin:20px 0;border:1px solid var(--border);border-radius:12px;padding:10px}.driver-option{padding:12px;margin-bottom:8px;background:var(--card-light);border-radius:10px;border:2px solid transparent;cursor:pointer;transition:all .3s ease}.driver-option:hover,.driver-option:active{border-color:var(--primary);background:rgba(255,102,0,0.1)}.driver-option.selected{border-color:var(--primary);background:rgba(255,102,0,0.2);box-shadow:0 0 15px rgba(255,102,0,0.2)}.driver-option-content{display:flex;align-items:center;gap:12px}.driver-option-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--primary) 0,var(--primary-dark) 100%);display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;flex-shrink:0}.driver-option-info{flex:1}.driver-option-name{font-weight:800;font-size:1rem;margin-bottom:2px}.driver-option-id{color:var(--text-gray);font-size:.8rem}.driver-option-stats{text-align:left}.driver-option-status{font-weight:700;color:var(--driver-online);font-size:.85rem}.driver-option-orders{font-size:.8rem;color:var(--text-gray)}.assign-actions{display:flex;gap:10px;margin-top:25px}.assign-btn{flex:1;padding:14px;border:0;border-radius:10px;font-family:'Cairo';font-weight:800;cursor:pointer;transition:all .3s ease;font-size:1rem}.assign-btn.confirm{background:linear-gradient(135deg,var(--success) 0,var(--success-dark) 100%);color:white}.assign-btn.confirm:hover,.assign-btn.confirm:active{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,200,81,0.3)}.assign-btn.cancel{background:transparent;border:2px solid var(--border);color:var(--text-gray)}.assign-btn.cancel:hover,.assign-btn.cancel:active{background:var(--card-light);color:var(--text)}.empty-state{text-align:center;padding:50px 15px;color:var(--text-gray)}.empty-icon{font-size:3rem;margin-bottom:15px;opacity:.3}.empty-title{font-size:1.2rem;margin-bottom:8px;color:var(--text)}.empty-description{font-size:.9rem;line-height:1.5}.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-gray);text-align:center}.spinner{width:45px;height:45px;border:3px solid rgba(255,102,0,0.3);border-radius:50%;border-top-color:var(--primary);animation:spin 1s linear infinite;margin-bottom:15px}@keyframes spin{to{transform:rotate(360deg)}}.search-container{padding:15px;background:var(--darker);border-bottom:1px solid var(--border)}.search-box{position:relative}.search-input{width:100%;padding:12px 45px 12px 15px;background:var(--card-light);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Cairo';font-size:.95rem;outline:0;transition:border-color .3s}.search-input:focus{border-color:var(--primary)}.search-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--text-gray)}.stats-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}.stat-card{background:var(--card);border-radius:12px;padding:15px;border:1px solid var(--border);transition:all .3s ease}.stat-card:hover,.stat-card:active{transform:translateY(-3px);border-color:var(--primary)}.stat-icon{width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:12px}.icon-online{background:rgba(0,200,81,0.2);color:var(--driver-online)}.icon-busy{background:rgba(255,187,51,0.2);color:var(--driver-busy)}.icon-orders{background:rgba(255,102,0,0.2);color:var(--primary)}.icon-delivered{background:rgba(76,175,80,0.2);color:#4caf50}.stat-card-value{font-size:1.8rem;font-weight:900;margin-bottom:5px}.stat-card-label{color:var(--text-gray);font-size:.85rem}button,input,select,textarea{font-size:16px}.action-btn,.assign-btn,.tab-btn{min-height:44px}.app-header{padding-top:env(safe-area-inset-top);height:calc(60px + env(safe - area - inset - top))}.stats-bar{top:calc(60px + env(safe - area - inset - top))}.main-container{top:calc(130px + env(safe - area - inset - top));height:calc(100vh - 130px - env(safe - area - inset - top))}@media(orientation:landscape){.stats-bar{height:60px}.main-container{top:calc(120px + env(safe - area - inset - top));height:calc(100vh - 120px - env(safe - area - inset - top))}.drivers-list{grid-template-columns:repeat(2,1fr)}}@media(min-width:400px) and (max-height:700px){.stats-bar{height:60px}.main-container{top:calc(120px + env(safe - area - inset - top))}}@media(max-width:320px){.app-header{padding:0 10px}.brand-text{font-size:1rem}.stat-item{padding:0 10px;min-width:90px}.driver-card{margin-bottom:8px}.driver-header,.driver-body{padding:10px}.modal-grid{grid-template-columns:1fr}}.pull-refresh{position:absolute;top:-50px;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:center;color:var(--text-gray);transition:transform .3s}</style></head><body><header class=app-header><div class=logo-container><img src=https://archive.org/download/20251202_20251202_1107/%D8%B3%D9%81%D8%B1%D8%A9%20%D8%A7%D9%84%D8%AF%D8%A7%D8%B1.jpg alt=Logo class=logo><div class=brand-text>إدارة السائقين</div></div><button class=refresh-btn onclick=refreshAllData() title="تحديث البيانات"><i class="fas fa-sync-alt"></i></button></header><div class=stats-bar><div class=stat-item><div class=stat-value id=online-drivers>0</div><div class=stat-label>سائقين متصلين</div></div><div class=stat-item><div class=stat-value id=active-orders>0</div><div class=stat-label>طلبات نشطة</div></div><div class=stat-item><div class=stat-value id=total-drivers>0</div><div class=stat-label>إجمالي السائقين</div></div><div class=stat-item><div class=stat-value id=pending-orders>0</div><div class=stat-label>طلبات منتظرة</div></div></div><div class=main-container><div class=tabs-container><div class=tabs><button class="tab-btn active" data-tab=drivers onclick="switchTab('drivers')"><i class="fas fa-users"></i> السائقون </button><button class=tab-btn data-tab=orders onclick="switchTab('orders')"><i class="fas fa-shopping-bag"></i> الطلبات </button><button class=tab-btn data-tab=map onclick="switchTab('map')"><i class="fas fa-map"></i> الخريطة </button><button class=tab-btn data-tab=stats onclick="switchTab('stats')"><i class="fas fa-chart-bar"></i> الإحصائيات </button></div></div><div class=content-area><div class="tab-content active" id=drivers-tab><div class=search-container><div class=search-box><input type=text class=search-input placeholder="ابحث عن سائق..." id=search-drivers onkeyup=filterDrivers()><div class=search-icon><i class="fas fa-search"></i></div></div></div><div class=drivers-list id=drivers-list><div class=loading><div class=spinner></div><p>جاري تحميل بيانات السائقين...</p></div></div></div><div class=tab-content id=orders-tab><div class=orders-container id=orders-container><div class=loading><div class=spinner></div><p>جاري تحميل الطلبات...</p></div></div></div><div class=tab-content id=map-tab><div class=map-container><div id=map></div><div class=map-controls><button class=map-control-btn onclick=locateAllDrivers() title="عرض جميع السائقين"><i class="fas fa-users"></i></button><button class=map-control-btn onclick=showPendingOrdersOnMap() title="عرض الطلبات المنتظرة"><i class="fas fa-clock"></i></button></div></div></div><div class=tab-content id=stats-tab><div class=stats-cards><div class=stat-card><div class="stat-icon icon-online"><i class="fas fa-motorcycle"></i></div><div class=stat-card-value id=stats-online>0</div><div class=stat-card-label>سائقين متصلين</div></div><div class=stat-card><div class="stat-icon icon-busy"><i class="fas fa-shopping-bag"></i></div><div class=stat-card-value id=stats-busy>0</div><div class=stat-card-label>سائقين مشغولين</div></div><div class=stat-card><div class="stat-icon icon-orders"><i class="fas fa-clipboard-list"></i></div><div class=stat-card-value id=stats-today-orders>0</div><div class=stat-card-label>طلبات اليوم</div></div><div class=stat-card><div class="stat-icon icon-delivered"><i class="fas fa-check-circle"></i></div><div class=stat-card-value id=stats-delivered>0</div><div class=stat-card-label>طلبات مكتملة</div></div></div><div style=background:var(--card);border-radius:12px;padding:15px;margin-top:15px><h3 style=color:var(--primary);margin-bottom:10px;font-size:1.1rem><i class="fas fa-chart-line"></i> نشاط السائقين </h3><div id=driver-activity><div class=loading><div class=spinner style=width:30px;height:30px></div><p>جاري تحميل النشاط...</p></div></div></div></div></div></div><div class=driver-modal id=driver-modal><div class=driver-modal-content><div class=driver-modal-header><div class=driver-modal-title><div class=modal-avatar id=modal-avatar>د</div><div><div class=modal-name id=modal-name>اسم السائق</div><div style=color:var(--text-gray);font-size:.9rem id=modal-id>ID: DRIVER-001</div></div></div><button class=close-modal onclick=closeDriverModal()><i class="fas fa-times"></i></button></div><div class=driver-modal-body id=driver-modal-body></div></div></div><div class=assign-modal id=assign-modal><div class=assign-modal-content><div class=assign-modal-header><h3>تخصيص طلب للسائق</h3><p>اختر سائقاً مناسباً لتوصيل هذا الطلب</p></div><div class=assign-order-id id=assign-order-id>#0000</div><div class=drivers-select id=drivers-select></div><div class=assign-actions><button class="assign-btn cancel" onclick=closeAssignModal()>إلغاء</button><button class="assign-btn confirm" onclick=assignOrderToDriver()>تخصيص الطلب</button></div></div></div><script src=https://unpkg.com/leaflet@1.9.4/dist/leaflet.js></script><script src=https://cdn.jsdelivr.net/npm/sweetalert2@11></script> <script>
+        // Configuration
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwUTS95tgAhsELfLq_Q5e9CkV3bPTyP35e98EWrAIDWwJaRMRLzBtVMggzwowfA5-M4/exec';
+        
+        // Global Variables
+        let map;
+        let driverMarkers = [];
+        let orderMarkers = [];
+        let allDrivers = [];
+        let filteredDrivers = [];
+        let pendingOrders = [];
+        let allOrders = [];
+        let selectedDriver = null;
+        let selectedOrderForAssign = null;
+        let pollingInterval = null;
+        let currentTab = 'drivers';
+        let connectionToken = null;
+        
+        // Initialize the application
+        function init() {
+            // Initialize map if needed
+            if (currentTab === 'map') {
+                initMap();
+            }
+            
+            // Start polling for data
+            startPolling();
+            
+            // Load initial data
+            loadAllData();
+            
+            // Initialize touch events
+            initTouchEvents();
+            
+            // Test connection
+            testAPIConnection();
+        }
+        
+        // Initialize map
+        function initMap() {
+            // Default location (Kuwait)
+            const defaultLocation = [29.3759, 47.9774];
+            
+            // Create map
+            map = L.map('map', {
+                zoomControl: false,
+                attributionControl: false,
+                dragging: true,
+                touchZoom: true,
+                scrollWheelZoom: false,
+                doubleClickZoom: true,
+                boxZoom: false,
+                keyboard: false
+            }).setView(defaultLocation, 12);
+            
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Add custom zoom control for mobile
+            L.control.zoom({
+                position: 'bottomright'
+            }).addTo(map);
+        }
+        
+        // Initialize touch events
+        function initTouchEvents() {
+            // Add pull to refresh for drivers list
+            const driversList = document.getElementById('drivers-list');
+            let startY = 0;
+            let isDragging = false;
+            
+            driversList.addEventListener('touchstart', (e) => {
+                if (driversList.scrollTop === 0) {
+                    startY = e.touches[0].clientY;
+                    isDragging = true;
+                }
+            }, { passive: true });
+            
+            driversList.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                
+                const currentY = e.touches[0].clientY;
+                const diff = currentY - startY;
+                
+                if (diff > 50) {
+                    isDragging = false;
+                    refreshAllData();
+                }
+            }, { passive: true });
+            
+            driversList.addEventListener('touchend', () => {
+                isDragging = false;
+            }, { passive: true });
+        }
+        
+        // Test API connection
+        async function testAPIConnection() {
+            try {
+                const response = await fetch(API_URL + '?action=getSystemStats');
+                if (!response.ok) {
+                    throw new Error('فشل الاتصال بالسيرفر');
+                }
+                console.log('API connection successful');
+            } catch (error) {
+                console.error('API connection failed:', error);
+                showError('فشل الاتصال بالسيرفر', 'يرجى التحقق من اتصال الإنترنت وإعادة المحاولة');
+            }
+        }
+        
+        // Show error message
+        function showError(title, message) {
+            Swal.fire({
+                icon: 'error',
+                title: title,
+                text: message,
+                confirmButtonText: 'حسناً',
+                background: '#222',
+                color: '#fff'
+            });
+        }
+        
+        // Start polling for data
+        function startPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+            
+            pollingInterval = setInterval(() => {
+                loadAllData();
+            }, 8000); // Poll every 8 seconds
+        }
+        
+        // Load all data
+        async function loadAllData() {
+            try {
+                // Load drivers
+                await loadDrivers();
+                
+                // Load pending orders
+                await loadPendingOrders();
+                
+                // Load all orders for stats
+                await loadAllOrders();
+                
+                // Update stats
+                updateStats();
+                
+                // Update UI based on current tab
+                updateCurrentTab();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                if (!navigator.onLine) {
+                    showError('لا يوجد اتصال بالإنترنت', 'يرجى الاتصال بالإنترنت');
+                }
+            }
+        }
+        
+        // Load drivers from server
+       // UPDATE IN DRIVER MANAGEMENT SCRIPT:
+
+// Enhanced loadDrivers function:
+async function loadDrivers() {
+  try {
+    const params = new URLSearchParams();
+    params.append('action', 'getAllDrivers');
+    params.append('_t', Date.now()); // Cache busting
+    
+    const response = await fetch(`${API_URL}?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('فشل تحميل بيانات السائقين');
+    }
+    
+    const data = await response.json();
+    
+    if (data.result === 'success') {
+      allDrivers = data.drivers || [];
+      filteredDrivers = [...allDrivers];
+      
+      // Update stats display immediately
+      updateStatsDisplay(data);
+      
+      if (currentTab === 'drivers') {
+        renderDriversList();
+      }
+    } else {
+      throw new Error(data.message || 'خطأ في تحميل بيانات السائقين');
+    }
+  } catch (error) {
+    console.error('Error loading drivers:', error);
+    throw error;
+  }
+}
+
+// Add function to update stats display:
+function updateStatsDisplay(data) {
+  // Update header stats
+  const onlineDrivers = allDrivers.filter(d => d.isOnline && d.status !== 'offline').length;
+  const busyDrivers = allDrivers.filter(d => d.status === 'busy').length;
+  const availableDrivers = allDrivers.filter(d => d.status === 'online').length;
+  
+  document.getElementById('online-drivers').textContent = onlineDrivers;
+  document.getElementById('active-orders').textContent = (data.activeOrders || 0) + (pendingOrders.length || 0);
+  document.getElementById('total-drivers').textContent = allDrivers.length;
+  document.getElementById('pending-orders').textContent = pendingOrders.length || 0;
+  
+  // Update stats tab
+  document.getElementById('stats-online').textContent = onlineDrivers;
+  document.getElementById('stats-busy').textContent = busyDrivers;
+  document.getElementById('stats-today-orders').textContent = data.todayOrders || 0;
+  document.getElementById('stats-delivered').textContent = data.deliveredOrders || 0;
+}
+
+// Enhanced renderDriversList function with better status display:
+function renderDriversList() {
+  const driversList = document.getElementById('drivers-list');
+  
+  if (!filteredDrivers || filteredDrivers.length === 0) {
+    driversList.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-user-slash"></i>
+        </div>
+        <div class="empty-title">لا توجد سائقين</div>
+        <div class="empty-description">
+          ${document.getElementById('search-drivers').value ? 
+            'لم يتم العثور على سائقين مطابقين للبحث' : 
+            'لا يوجد سائقون مسجلون حالياً'}
+        </div>
+      </div>
+    `;
+    return;
+  }
+  
+  let html = '';
+  filteredDrivers.forEach(driver => {
+    // CRITICAL: Determine status with correct logic
+    let statusClass = '';
+    let statusText = '';
+    let statusIcon = '';
+    
+    if (driver.isOnline) {
+      if (driver.status === 'online') {
+        statusClass = 'status-online';
+        statusText = 'متصل';
+        statusIcon = '🟢';
+      } else if (driver.status === 'busy') {
+        statusClass = 'status-busy';
+        statusText = 'مشغول';
+        statusIcon = '🟡';
+      }
+    } else {
+      statusClass = 'status-offline';
+      statusText = 'غير متصل';
+      statusIcon = '🔴';
+    }
+    
+    // ... rest of driver card rendering ...
+  });
+  
+  driversList.innerHTML = html;
+}
+        
+        // Load pending orders from server
+        async function loadPendingOrders() {
+            try {
+                const params = new URLSearchParams();
+                params.append('action', 'getPendingOrders');
+                
+                const response = await fetch(`${API_URL}?${params.toString()}`);
+                if (!response.ok) {
+                    throw new Error('فشل تحميل الطلبات المنتظرة');
+                }
+                
+                const data = await response.json();
+                
+                if (data.result === 'success') {
+                    pendingOrders = data.orders || [];
+                    
+                    if (currentTab === 'orders') {
+                        renderOrdersList();
+                    }
+                } else {
+                    throw new Error(data.message || 'خطأ في تحميل الطلبات المنتظرة');
+                }
+            } catch (error) {
+                console.error('Error loading pending orders:', error);
+                throw error;
+            }
+        }
+        
+        // Load all orders for statistics
+        async function loadAllOrders() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error('فشل تحميل الطلبات');
+                }
+                
+                const data = await response.json();
+                allOrders = Array.isArray(data) ? data : (data.orders || []);
+            } catch (error) {
+                console.error('Error loading all orders:', error);
+                allOrders = [];
+            }
+        }
+        
+        // Filter drivers based on search
+        function filterDrivers() {
+            const searchTerm = document.getElementById('search-drivers').value.toLowerCase();
+            
+            if (!searchTerm) {
+                filteredDrivers = [...allDrivers];
+            } else {
+                filteredDrivers = allDrivers.filter(driver => {
+                    return (driver.name && driver.name.toLowerCase().includes(searchTerm)) ||
+                           (driver.id && driver.id.toLowerCase().includes(searchTerm)) ||
+                           (driver.phone && driver.phone.toLowerCase().includes(searchTerm));
+                });
+            }
+            
+            renderDriversList();
+        }
+        
+        // Render drivers list
+        function renderDriversList() {
+            const driversList = document.getElementById('drivers-list');
+            
+            if (!filteredDrivers || filteredDrivers.length === 0) {
+                driversList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-user-slash"></i>
+                        </div>
+                        <div class="empty-title">لا توجد سائقين</div>
+                        <div class="empty-description">
+                            ${document.getElementById('search-drivers').value ? 
+                              'لم يتم العثور على سائقين مطابقين للبحث' : 
+                              'لا يوجد سائقون مسجلون حالياً'}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            filteredDrivers.forEach(driver => {
+                // Calculate stats
+                const todayOrders = driver.todayOrders || 0;
+                const activeOrders = driver.activeOrders || 0;
+                const totalOrders = driver.totalOrders || 0;
+                const rating = driver.rating || '--';
+                
+                // Get status class and text
+                let statusClass = '';
+                let statusText = '';
+                let status = driver.status || 'offline';
+                
+                // Force offline if not online
+                if (!driver.isOnline) {
+                    status = 'offline';
+                }
+                
+                switch(status) {
+                    case 'online':
+                        statusClass = 'status-online';
+                        statusText = 'متصل';
+                        break;
+                    case 'busy':
+                        statusClass = 'status-busy';
+                        statusText = 'مشغول';
+                        break;
+                    case 'offline':
+                    default:
+                        statusClass = 'status-offline';
+                        statusText = 'غير متصل';
+                        break;
+                }
+                
+                // Get first letter for avatar
+                const firstLetter = driver.name ? driver.name.charAt(0).toUpperCase() : 'د';
+                
+                html += `
+                    <div class="driver-card ${status} ${selectedDriver && selectedDriver.id === driver.id ? 'active' : ''}" 
+                          onclick="selectDriver('${driver.id}')" data-driver-id="${driver.id}">
+                        <div class="driver-header">
+                            <div class="driver-info">
+                                <div class="driver-avatar">${firstLetter}</div>
+                                <div class="driver-details">
+                                    <div class="driver-name">${driver.name || 'سائق'}</div>
+                                    <div class="driver-id">${driver.id}</div>
+                                </div>
+                            </div>
+                            <div class="driver-status ${statusClass}">${statusText}</div>
+                        </div>
+                        
+                        <div class="driver-body">
+                            <div class="driver-stats">
+                                <div class="driver-stat">
+                                    <div class="stat-value">${todayOrders}</div>
+                                    <div class="stat-label">طلبات اليوم</div>
+                                </div>
+                                <div class="driver-stat">
+                                    <div class="stat-value">${activeOrders}</div>
+                                    <div class="stat-label">نشطة حالياً</div>
+                                </div>
+                                <div class="driver-stat">
+                                    <div class="stat-value">${totalOrders}</div>
+                                    <div class="stat-label">إجمالي الطلبات</div>
+                                </div>
+                                <div class="driver-stat">
+                                    <div class="stat-value">${rating}</div>
+                                    <div class="stat-label">التقييم</div>
+                                </div>
+                            </div>
+                            
+                            ${driver.currentOrder ? `
+                                <div class="driver-current">
+                                    <div class="current-label">الطلب الحالي:</div>
+                                    <div class="current-value">#${driver.currentOrder}</div>
+                                </div>
+                            ` : ''}
+                            
+                            <div style="margin-top: 10px; font-size: 0.8rem; color: var(--text-gray); display: flex; justify-content: space-between;">
+                                <div>
+                                    <i class="fas fa-sync-alt"></i> 
+                                    ${driver.lastConnection ? new Date(driver.lastConnection).toLocaleTimeString('ar-SA', {hour: '2-digit', minute: '2-digit'}) : '--'}
+                                </div>
+                                <div>
+                                    ${driver.isOnline ? '🟢 متصل' : '🔴 غير متصل'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            driversList.innerHTML = html;
+        }
+        
+        // Render orders list
+        function renderOrdersList() {
+            const ordersContainer = document.getElementById('orders-container');
+            
+            if (!pendingOrders || pendingOrders.length === 0) {
+                ordersContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="empty-title">لا توجد طلبات منتظرة</div>
+                        <div class="empty-description">
+                            جميع الطلبات قد تم تخصيصها للسائقين
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            pendingOrders.forEach(order => {
+                const orderDate = new Date(order.time);
+                const timeString = orderDate.toLocaleTimeString('ar-SA', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const dateString = orderDate.toLocaleDateString('ar-SA');
+                
+                // Calculate items count
+                const itemsCount = order.items ? order.items.split(' + ').length : 0;
+                
+                html += `
+                    <div class="order-item" data-order-id="${order.id}">
+                        <div class="order-header">
+                            <div class="order-id">#${order.id}</div>
+                            <div class="order-status order-ready">جاهز للتوصيل</div>
+                        </div>
+                        
+                        <div class="order-info">
+                            <div class="info-item">
+                                <div class="info-label">العميل</div>
+                                <div class="info-value">${order.customerName || 'عميل'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">الهاتف</div>
+                                <div class="info-value" dir="ltr">${order.phone || ''}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">التاريخ</div>
+                                <div class="info-value">${dateString}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">الوقت</div>
+                                <div class="info-value">${timeString}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 8px; background: var(--card-light); border-radius: 6px; margin: 8px 0; font-size: 0.9rem;">
+                            <strong>الأصناف (${itemsCount}):</strong> ${order.items ? order.items.split(' + ').slice(0, 2).join('، ') : ''}${itemsCount > 2 ? '...' : ''}
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                            <div style="font-weight: 900; font-size: 1.2rem; color: var(--primary);">
+                                ${order.total || '0.000'} د.ك
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--text-gray);">
+                                ${order.addressDetails ? order.addressDetails.substring(0, 30) + '...' : 'عنوان غير محدد'}
+                            </div>
+                        </div>
+                        
+                        <div class="order-actions">
+                            <button class="action-btn btn-assign" onclick="openAssignModal(${order.id})">
+                                <i class="fas fa-user-tag"></i> تخصيص سائق
+                            </button>
+                            <button class="action-btn btn-details" onclick="showOrderDetails(${order.id})">
+                                <i class="fas fa-info-circle"></i> التفاصيل
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            ordersContainer.innerHTML = html;
+        }
+        
+        // Update statistics
+        function updateStats() {
+            // Calculate driver stats
+            const onlineDrivers = allDrivers.filter(d => d.status === 'online' && d.isOnline).length;
+            const busyDrivers = allDrivers.filter(d => d.status === 'busy' && d.isOnline).length;
+            const offlineDrivers = allDrivers.filter(d => !d.isOnline || d.status === 'offline').length;
+            
+            // Calculate order stats
+            const activeOrdersCount = allDrivers.reduce((sum, d) => sum + (d.activeOrders || 0), 0);
+            const pendingOrdersCount = pendingOrders.length;
+            const totalOrdersCount = allOrders.length;
+            
+            // Calculate today's delivered orders
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const deliveredToday = allOrders.filter(order => {
+                if (!order.deliveryTime) return false;
+                const deliveryDate = new Date(order.deliveryTime);
+                return deliveryDate >= today && order.status === 'Delivered';
+            }).length;
+            
+            // Update header stats
+            document.getElementById('online-drivers').textContent = onlineDrivers;
+            document.getElementById('active-orders').textContent = activeOrdersCount + pendingOrdersCount;
+            document.getElementById('total-drivers').textContent = allDrivers.length;
+            document.getElementById('pending-orders').textContent = pendingOrdersCount;
+            
+            // Update stats tab
+            document.getElementById('stats-online').textContent = onlineDrivers;
+            document.getElementById('stats-busy').textContent = busyDrivers;
+            document.getElementById('stats-today-orders').textContent = totalOrdersCount;
+            document.getElementById('stats-delivered').textContent = deliveredToday;
+            
+            // Update driver activity
+            updateDriverActivity();
+        }
+        
+        // Update driver activity
+        function updateDriverActivity() {
+            const activityContainer = document.getElementById('driver-activity');
+            
+            // Get top 5 drivers by today's orders
+            const topDrivers = [...allDrivers]
+                .filter(d => d.isOnline)
+                .sort((a, b) => (b.todayOrders || 0) - (a.todayOrders || 0))
+                .slice(0, 5);
+            
+            if (topDrivers.length === 0) {
+                activityContainer.innerHTML = `
+                    <div class="empty-state" style="padding: 20px 0;">
+                        <div class="empty-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="empty-title">لا توجد بيانات</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            topDrivers.forEach(driver => {
+                const todayOrders = driver.todayOrders || 0;
+                const maxOrders = Math.max(...topDrivers.map(d => d.todayOrders || 0), 1);
+                const percentage = (todayOrders / maxOrders) * 100;
+                
+                html += `
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem;">
+                            <span>${driver.name || driver.id}</span>
+                            <span style="color: var(--primary); font-weight: 700;">${todayOrders} طلب</span>
+                        </div>
+                        <div style="height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                            <div style="height: 100%; width: ${percentage}%; background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            activityContainer.innerHTML = html;
+        }
+        
+        // Update current tab
+        function updateCurrentTab() {
+            switch(currentTab) {
+                case 'drivers':
+                    renderDriversList();
+                    break;
+                case 'orders':
+                    renderOrdersList();
+                    break;
+                case 'map':
+                    updateMapMarkers();
+                    break;
+                case 'stats':
+                    updateStats();
+                    break;
+            }
+        }
+        
+        // Switch between tabs
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update active tab button
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.tab === tab) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Show active content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `${tab}-tab`) {
+                    content.classList.add('active');
+                }
+            });
+            
+            // Initialize map if needed
+            if (tab === 'map' && !map) {
+                initMap();
+            }
+            
+            // Update content
+            updateCurrentTab();
+        }
+        
+        // Select a driver
+        function selectDriver(driverId) {
+            const driver = allDrivers.find(d => d.id === driverId);
+            if (driver) {
+                selectedDriver = driver;
+                
+                // Update active card
+                document.querySelectorAll('.driver-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                event.currentTarget.classList.add('active');
+                
+                // Show driver details
+                showDriverDetails(driver);
+            }
+        }
+        
+        // Show driver details
+        function showDriverDetails(driver) {
+            const modal = document.getElementById('driver-modal');
+            const firstLetter = driver.name ? driver.name.charAt(0).toUpperCase() : 'د';
+            
+            // Get status text and color
+            let statusText = '';
+            let statusColor = '';
+            let status = driver.status || 'offline';
+            
+            if (!driver.isOnline) {
+                status = 'offline';
+            }
+            
+            switch(status) {
+                case 'online':
+                    statusText = 'متصل';
+                    statusColor = 'var(--driver-online)';
+                    break;
+                case 'busy':
+                    statusText = 'مشغول';
+                    statusColor = 'var(--driver-busy)';
+                    break;
+                case 'offline':
+                    statusText = 'غير متصل';
+                    statusColor = 'var(--driver-offline)';
+                    break;
+            }
+            
+            const modalBody = document.getElementById('driver-modal-body');
+            modalBody.innerHTML = `
+                <div class="modal-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        معلومات السائق
+                    </div>
+                    <div class="modal-grid">
+                        <div class="modal-item">
+                            <div class="modal-label">الحالة</div>
+                            <div class="modal-value" style="color: ${statusColor};">${statusText}</div>
+                        </div>
+                        <div class="modal-item">
+                            <div class="modal-label">رقم الهاتف</div>
+                            <div class="modal-value">${driver.phone || 'غير متوفر'}</div>
+                        </div>
+                        <div class="modal-item">
+                            <div class="modal-label">تاريخ الانضمام</div>
+                            <div class="modal-value">${driver.joinDate ? new Date(driver.joinDate).toLocaleDateString('ar-SA') : 'غير محدد'}</div>
+                        </div>
+                        <div class="modal-item">
+                            <div class="modal-label">التقييم</div>
+                            <div class="modal-value">${driver.rating || '--'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <div class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        الإحصائيات
+                    </div>
+                    <div class="modal-grid">
+                        <div class="modal-item">
+                            <div class="modal-label">طلبات اليوم</div>
+                            <div class="modal-value">${driver.todayOrders || 0}</div>
+                        </div>
+                        <div class="modal-item">
+                            <div class="modal-label">طلبات الشهر</div>
+                            <div class="modal-value">${driver.monthOrders || 0}</div>
+                        </div>
+                        <div class="modal-item">
+                            <div class="modal-label">إجمالي الطلبات</div>
+                            <div class="modal-value">${driver.totalOrders || 0}</div>
+                        </div>
+                        <div class="modal-item">
+                            <div class="modal-label">متوسط التقييم</div>
+                            <div class="modal-value">${driver.avgRating || driver.rating || '--'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <div class="section-title">
+                        <i class="fas fa-motorcycle"></i>
+                        النشاط الحالي
+                    </div>
+                    <div class="modal-grid">
+                        <div class="modal-item">
+                            <div class="modal-label">الطلبات النشطة</div>
+                            <div class="modal-value">${driver.activeOrders || 0}</div>
+                        </div>
+                        <div class="modal-item">
+                            <div class="modal-label">آخر تحديث</div>
+                            <div class="modal-value">${driver.lastUpdate ? new Date(driver.lastUpdate).toLocaleTimeString('ar-SA') : '--'}</div>
+                        </div>
+                        <div class="modal-item">
+                            <div class="modal-label">السرعة</div>
+                            <div class="modal-value">${driver.speed ? driver.speed + ' كم/س' : '--'}</div>
+                        </div>
+                        <div class="modal-item">
+                            <div class="modal-label">البطارية</div>
+                            <div class="modal-value">${driver.battery ? driver.battery + '%' : '--'}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${driver.currentOrder ? `
+                    <div class="modal-section">
+                        <div class="section-title">
+                            <i class="fas fa-shopping-bag"></i>
+                            الطلب الحالي
+                        </div>
+                        <div style="background: rgba(255, 102, 0, 0.1); border: 1px solid var(--primary); border-radius: 10px; padding: 12px;">
+                            <div style="font-weight: 700; color: var(--primary); margin-bottom: 8px;">الطلب #${driver.currentOrder}</div>
+                            <div style="font-size: 0.9rem; color: var(--text);">
+                                يتم توصيل هذا الطلب حالياً
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button class="action-btn btn-assign" style="flex: 1;" onclick="openAssignModal(null, '${driver.id}')">
+                        <i class="fas fa-user-tag"></i> تخصيص طلب
+                    </button>
+                    <button class="action-btn btn-details" style="flex: 1;" onclick="closeDriverModal(); switchTab('map'); locateDriverOnMap('${driver.id}')">
+                        <i class="fas fa-map-marker-alt"></i> عرض على الخريطة
+                    </button>
+                </div>
+            `;
+            
+            // Update modal header
+            document.getElementById('modal-avatar').textContent = firstLetter;
+            document.getElementById('modal-name').textContent = driver.name || 'سائق';
+            document.getElementById('modal-id').textContent = `ID: ${driver.id}`;
+            
+            // Show modal
+            modal.classList.add('active');
+        }
+        
+        // Close driver modal
+        function closeDriverModal() {
+            document.getElementById('driver-modal').classList.remove('active');
+            selectedDriver = null;
+            
+            // Reset active card
+            document.querySelectorAll('.driver-card').forEach(card => {
+                card.classList.remove('active');
+            });
+        }
+        
+        // Show order details
+        function showOrderDetails(orderId) {
+            const order = pendingOrders.find(o => o.id == orderId) || allOrders.find(o => o.id == orderId);
+            if (!order) return;
+            
+            const orderDate = new Date(order.time);
+            const timeString = orderDate.toLocaleTimeString('ar-SA', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            const dateString = orderDate.toLocaleDateString('ar-SA');
+            
+            Swal.fire({
+                title: `الطلب #${order.id}`,
+                html: `
+                    <div style="text-align: right; font-family: Cairo;">
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 5px;">العميل</div>
+                            <div style="font-weight: 700; font-size: 1.1rem;">${order.customerName || 'عميل'}</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 5px;">الهاتف</div>
+                            <div style="font-weight: 700; font-size: 1.1rem; direction: ltr; text-align: right;">${order.phone || ''}</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 5px;">العنوان</div>
+                            <div style="font-weight: 700; font-size: 1rem;">${order.addressDetails || 'غير محدد'}</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 5px;">الأصناف</div>
+                            <div style="font-weight: 700; font-size: 1rem;">${order.items || ''}</div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <div style="color: var(--text-gray); font-size: 0.9rem; margin-bottom: 5px;">المجموع</div>
+                            <div style="font-weight: 900; font-size: 1.3rem; color: var(--primary);">${order.total || '0.000'} د.ك</div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; color: var(--text-gray); font-size: 0.9rem;">
+                            <div>${dateString}</div>
+                            <div>${timeString}</div>
+                        </div>
+                    </div>
+                `,
+                icon: 'info',
+                confirmButtonText: 'حسناً',
+                background: '#222',
+                color: '#fff',
+                showCloseButton: true
+            });
+        }
+        
+        // Update map markers
+        function updateMapMarkers() {
+            if (!map) return;
+            
+            // Clear existing markers
+            driverMarkers.forEach(marker => map.removeLayer(marker));
+            driverMarkers = [];
+            
+            orderMarkers.forEach(marker => map.removeLayer(marker));
+            orderMarkers = [];
+            
+            // Add driver markers
+            allDrivers.forEach(driver => {
+                if (driver.lat && driver.lng && driver.isOnline && driver.status !== 'offline') {
+                    let iconColor = '';
+                    let icon = '';
+                    
+                    if (driver.status === 'online') {
+                        iconColor = '#00c851';
+                        icon = 'fas fa-motorcycle';
+                    } else if (driver.status === 'busy') {
+                        iconColor = '#ffbb33';
+                        icon = 'fas fa-shopping-bag';
+                    } else {
+                        return; // Don't show offline drivers
+                    }
+                    
+                    const markerIcon = L.divIcon({
+                        html: `
+                            <div style="background: ${iconColor}; width: 40px; height: 40px; border-radius: 50%; 
+                                         display: flex; align-items: center; justify-content: center; 
+                                         color: white; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);">
+                                <i class="${icon}" style="font-size: 18px;"></i>
+                            </div>
+                            <div style="background: white; color: #000; padding: 4px 8px; border-radius: 8px; 
+                                         margin-top: 4px; font-weight: bold; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); white-space: nowrap;">
+                                ${driver.name || driver.id}
+                            </div>
+                        `,
+                        className: 'driver-marker',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 40],
+                        popupAnchor: [0, -40]
+                    });
+                    
+                    const marker = L.marker([driver.lat, driver.lng], { 
+                        icon: markerIcon,
+                        zIndexOffset: driver.id === selectedDriver?.id ? 1000 : 0
+                    })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="text-align: right; direction: rtl; font-family: Cairo; min-width: 180px; font-size: 14px;">
+                            <h3 style="margin: 0 0 8px 0; color: ${iconColor}; font-size: 16px;">${driver.name || 'سائق'}</h3>
+                            <p style="margin: 4px 0;"><strong>الحالة:</strong> ${driver.status === 'online' ? 'متاح' : 'مشغول'}</p>
+                            <p style="margin: 4px 0;"><strong>الطلبات النشطة:</strong> ${driver.activeOrders || 0}</p>
+                            <p style="margin: 4px 0;"><strong>التقييم:</strong> ${driver.rating || '--'}</p>
+                            <button onclick="selectDriver('${driver.id}')" 
+                                    style="background: ${iconColor}; color: white; border: none; padding: 6px 12px; 
+                                           border-radius: 5px; cursor: pointer; width: 100%; margin-top: 8px; font-family: Cairo; font-size: 14px;">
+                                عرض التفاصيل
+                            </button>
+                        </div>
+                    `);
+                    
+                    marker.driverId = driver.id;
+                    driverMarkers.push(marker);
+                }
+            });
+            
+            // Add order markers for pending orders
+            pendingOrders.forEach(order => {
+                if (order.locationLat && order.locationLng) {
+                    const markerIcon = L.divIcon({
+                        html: `
+                            <div style="background: #33b5e5; width: 35px; height: 35px; border-radius: 50%; 
+                                         display: flex; align-items: center; justify-content: center; 
+                                         color: white; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                                         animation: pulse 1.5s infinite;">
+                                <i class="fas fa-clock" style="font-size: 16px;"></i>
+                            </div>
+                            <div style="background: white; color: #000; padding: 4px 8px; border-radius: 8px; 
+                                         margin-top: 4px; font-weight: bold; font-size: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); white-space: nowrap;">
+                                #${order.id}
+                            </div>
+                        `,
+                        className: 'order-marker',
+                        iconSize: [35, 35],
+                        iconAnchor: [17.5, 35],
+                        popupAnchor: [0, -35]
+                    });
+                    
+                    const marker = L.marker([order.locationLat, order.locationLng], { icon: markerIcon })
+                        .addTo(map)
+                        .bindPopup(`
+                            <div style="text-align: right; direction: rtl; font-family: Cairo; min-width: 180px; font-size: 14px;">
+                                <h3 style="margin: 0 0 8px 0; color: #33b5e5; font-size: 16px;">طلب #${order.id}</h3>
+                                <p style="margin: 4px 0;"><strong>الحالة:</strong> في انتظار السائق</p>
+                                <p style="margin: 4px 0;"><strong>العنوان:</strong> ${order.addressDetails || 'غير محدد'}</p>
+                                <p style="margin: 4px 0;"><strong>المجموع:</strong> ${order.total || '0.000'} د.ك</p>
+                                <button onclick="openAssignModal(${order.id})" 
+                                        style="background: #ff6600; color: white; border: none; padding: 6px 12px; 
+                                               border-radius: 5px; cursor: pointer; width: 100%; margin-top: 8px; font-family: Cairo; font-size: 14px;">
+                                    تخصيص سائق
+                                </button>
+                            </div>
+                        `);
+                    
+                    orderMarkers.push(marker);
+                }
+            });
+            
+            // Auto-fit bounds if there are markers
+            if (driverMarkers.length > 0 || orderMarkers.length > 0) {
+                const bounds = L.latLngBounds();
+                
+                driverMarkers.forEach(marker => bounds.extend(marker.getLatLng()));
+                orderMarkers.forEach(marker => bounds.extend(marker.getLatLng()));
+                
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [30, 30] });
+                }
+            }
+        }
+        
+        // Map control functions
+        function locateAllDrivers() {
+            if (!map) return;
+            
+            const onlineDrivers = allDrivers.filter(d => 
+                d.isOnline && d.lat && d.lng && d.status !== 'offline'
+            );
+            
+            if (onlineDrivers.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'لا توجد سائقين',
+                    text: 'لا يوجد سائقون متصلون حالياً',
+                    background: '#222',
+                    color: '#fff',
+                    timer: 2000
+                });
+                return;
+            }
+            
+            const bounds = L.latLngBounds();
+            
+            onlineDrivers.forEach(driver => {
+                bounds.extend([driver.lat, driver.lng]);
+            });
+            
+            if (bounds.isValid()) {
+                map.fitBounds(bounds, { padding: [30, 30] });
+            }
+        }
+        
+        function showPendingOrdersOnMap() {
+            if (!map) return;
+            
+            if (pendingOrders.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'لا توجد طلبات',
+                    text: 'لا توجد طلبات في انتظار السائقين حالياً',
+                    background: '#222',
+                    color: '#fff',
+                    timer: 2000
+                });
+                return;
+            }
+            
+            const bounds = L.latLngBounds();
+            let hasValidLocations = false;
+            
+            // Add pending orders
+            pendingOrders.forEach(order => {
+                if (order.locationLat && order.locationLng) {
+                    bounds.extend([order.locationLat, order.locationLng]);
+                    hasValidLocations = true;
+                }
+            });
+            
+            // Also include online drivers
+            allDrivers.filter(d => d.status === 'online' && d.lat && d.lng && d.isOnline).forEach(driver => {
+                bounds.extend([driver.lat, driver.lng]);
+                hasValidLocations = true;
+            });
+            
+            if (hasValidLocations && bounds.isValid()) {
+                map.fitBounds(bounds, { padding: [30, 30] });
+                
+                Swal.fire({
+                    icon: 'info',
+                    title: 'الطلبات المنتظرة',
+                    text: `يوجد ${pendingOrders.length} طلب في انتظار التوصيل`,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: '#222',
+                    color: '#fff'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'لا توجد مواقع',
+                    text: 'لا توجد طلبات أو سائقين بمواقع محددة',
+                    background: '#222',
+                    color: '#fff',
+                    timer: 2000
+                });
+            }
+        }
+        
+        function locateDriverOnMap(driverId) {
+            if (!map) return;
+            
+            const driver = allDrivers.find(d => d.id === driverId);
+            if (driver && driver.lat && driver.lng) {
+                map.setView([driver.lat, driver.lng], 15);
+                
+                // Highlight driver marker
+                driverMarkers.forEach(marker => {
+                    if (marker.driverId === driverId) {
+                        marker.setZIndexOffset(1000);
+                        marker.openPopup();
+                    } else {
+                        marker.setZIndexOffset(0);
+                    }
+                });
+            }
+        }
+        
+        // Assign order functions
+        function openAssignModal(orderId = null, driverId = null) {
+            if (orderId) {
+                selectedOrderForAssign = pendingOrders.find(o => o.id == orderId);
+            } else if (driverId) {
+                // Find a pending order near this driver
+                const driver = allDrivers.find(d => d.id === driverId);
+                if (driver && pendingOrders.length > 0) {
+                    selectedOrderForAssign = pendingOrders[0];
+                }
+            }
+            
+            if (!selectedOrderForAssign && pendingOrders.length > 0) {
+                selectedOrderForAssign = pendingOrders[0];
+            }
+            
+            if (!selectedOrderForAssign) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'لا توجد طلبات',
+                    text: 'لا توجد طلبات في انتظار التوصيل',
+                    background: '#222',
+                    color: '#fff'
+                });
+                return;
+            }
+            
+            // Update modal
+            document.getElementById('assign-order-id').textContent = `#${selectedOrderForAssign.id}`;
+            
+            // Populate drivers list - only show online drivers
+            const driversSelect = document.getElementById('drivers-select');
+            const onlineDrivers = allDrivers.filter(d => 
+                d.status === 'online' && d.isOnline === true
+            );
+            
+            if (onlineDrivers.length === 0) {
+                driversSelect.innerHTML = `
+                    <div class="empty-state" style="padding: 20px; text-align: center;">
+                        <div class="empty-icon">
+                            <i class="fas fa-user-slash"></i>
+                        </div>
+                        <div class="empty-title">لا يوجد سائقون متصلون</div>
+                        <div class="empty-description">
+                            يجب أن يكون السائق متصلاً لتتمكن من تخصيص طلب له
+                        </div>
+                    </div>
+                `;
+            } else {
+                let html = '';
+                onlineDrivers.forEach(driver => {
+                    const isSelected = driverId ? driver.id === driverId : false;
+                    const firstLetter = driver.name ? driver.name.charAt(0).toUpperCase() : 'د';
+                    
+                    html += `
+                        <div class="driver-option ${isSelected ? 'selected' : ''}" 
+                             onclick="selectDriverForAssign('${driver.id}')" data-driver-id="${driver.id}">
+                            <div class="driver-option-content">
+                                <div class="driver-option-avatar">${firstLetter}</div>
+                                <div class="driver-option-info">
+                                    <div class="driver-option-name">${driver.name || 'سائق'}</div>
+                                    <div class="driver-option-id">${driver.id}</div>
+                                </div>
+                                <div class="driver-option-stats">
+                                    <div class="driver-option-status">متاح</div>
+                                    <div class="driver-option-orders">
+                                        ${driver.activeOrders || 0} طلبات نشطة
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                driversSelect.innerHTML = html;
+                
+                // Select first driver if none selected
+                if (!driverId && onlineDrivers.length > 0) {
+                    setTimeout(() => {
+                        selectDriverForAssign(onlineDrivers[0].id);
+                    }, 100);
+                }
+            }
+            
+            // Show modal
+            document.getElementById('assign-modal').classList.add('active');
+        }
+        
+        function selectDriverForAssign(driverId) {
+            // Update selected driver
+            document.querySelectorAll('.driver-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.driverId === driverId) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+        
+        async function assignOrderToDriver() {
+            const selectedOption = document.querySelector('.driver-option.selected');
+            if (!selectedOption || !selectedOrderForAssign) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'خطأ',
+                    text: 'الرجاء اختيار سائق أولاً',
+                    background: '#222',
+                    color: '#fff'
+                });
+                return;
+            }
+            
+            const driverId = selectedOption.dataset.driverId;
+            const orderId = selectedOrderForAssign.id;
+            
+            try {
+                const result = await Swal.fire({
+                    title: 'تأكيد التخصيص',
+                    html: `هل أنت متأكد من تخصيص الطلب <strong>#${orderId}</strong><br>للسائق <strong>${selectedOption.querySelector('.driver-option-name').textContent}</strong>؟`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'نعم، قم بالتخصيص',
+                    cancelButtonText: 'إلغاء',
+                    background: '#222',
+                    color: '#fff',
+                    allowOutsideClick: false
+                });
+                
+                if (result.isConfirmed) {
+                    const params = new URLSearchParams();
+                    params.append('action', 'assignOrderToDriver');
+                    params.append('orderId', orderId);
+                    params.append('driverId', driverId);
+                    
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: params
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('فشل تخصيص الطلب');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.result === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'تم التخصيص',
+                            text: `تم تخصيص الطلب #${orderId} للسائق بنجاح`,
+                            timer: 2000,
+                            showConfirmButton: false,
+                            background: '#222',
+                            color: '#fff'
+                        });
+                        
+                        // Close modal and refresh data
+                        closeAssignModal();
+                        loadAllData();
+                    } else {
+                        throw new Error(data.message || 'خطأ في تخصيص الطلب');
+                    }
+                }
+            } catch (error) {
+                console.error('Error assigning order:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'خطأ',
+                    text: 'فشل في تخصيص الطلب: ' + error.message,
+                    background: '#222',
+                    color: '#fff'
+                });
+            }
+        }
+        
+        function closeAssignModal() {
+            document.getElementById('assign-modal').classList.remove('active');
+            selectedOrderForAssign = null;
+        }
+        
+        // Refresh all data
+        async function refreshAllData() {
+            const refreshBtn = event?.currentTarget || document.querySelector('.refresh-btn');
+            const originalHtml = refreshBtn.innerHTML;
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            
+            try {
+                await loadAllData();
+                
+                refreshBtn.innerHTML = originalHtml;
+                
+                // Show success notification
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-start',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    background: '#222',
+                    color: '#fff'
+                });
+                
+                Toast.fire({
+                    icon: 'success',
+                    title: 'تم تحديث البيانات'
+                });
+                
+            } catch (error) {
+                refreshBtn.innerHTML = originalHtml;
+                showError('خطأ في التحديث', 'فشل تحديث البيانات');
+            }
+        }
+        
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Handle online/offline status
+        window.addEventListener('online', () => {
+            console.log('Connection restored');
+            loadAllData();
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('Connection lost');
+            showError('فقدان الاتصال', 'تم فقدان الاتصال بالإنترنت');
+        });
+        
+        // Handle beforeunload
+        window.addEventListener('beforeunload', () => {
+            if (pollingInterval) clearInterval(pollingInterval);
+        });
+        
+        // Prevent pull-to-refresh on mobile
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.closest('.drivers-list') || 
+                e.target.closest('.driver-modal-content') ||
+                e.target.closest('.assign-modal-content')) {
+                return;
+            }
+            e.preventDefault();
+        }, { passive: false });
+        
+        // Handle back button on mobile
+        window.addEventListener('popstate', function() {
+            if (document.getElementById('driver-modal').classList.contains('active')) {
+                closeDriverModal();
+                history.pushState(null, null, window.location.pathname);
+            } else if (document.getElementById('assign-modal').classList.contains('active')) {
+                closeAssignModal();
+                history.pushState(null, null, window.location.pathname);
+            }
+        });
+        
+        // Push initial state
+        history.pushState(null, null, window.location.pathname);
+    </script></body></html>
