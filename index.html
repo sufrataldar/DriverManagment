@@ -609,35 +609,36 @@
             100% { opacity: 0.3; transform: scale(0.95); filter: grayscale(1); }
         }
 
-        .print-pickup-time {
-            background: #fff8e1;
+        /* قسم توقيت التجهيز المتقدم في الطباعة */
+        .print-delivery-time {
+            background: #e8f5e9;
             padding: 12px;
             border-radius: 8px;
             margin: 10px 0;
-            border: 2px solid #ffc107;
+            border: 2px solid #4caf50;
             text-align: center;
             font-weight: bold;
         }
         
-        .print-pickup-time.urgent {
+        .print-delivery-time.urgent {
             background: #ffeaea;
             border-color: #ff4444;
             color: #d32f2f;
         }
         
-        .print-pickup-time.scheduled {
+        .print-delivery-time.scheduled {
             background: #e8f5e9;
             border-color: #4caf50;
             color: #2e7d32;
         }
         
-        .print-pickup-time-label {
+        .print-delivery-time-label {
             font-size: 18px;
             margin-bottom: 5px;
             font-weight: bold;
         }
         
-        .print-pickup-time-value {
+        .print-delivery-time-value {
             font-size: 22px;
             font-weight: 900;
         }
@@ -695,6 +696,19 @@
             flex: 1;
         }
         
+        /* قسم التاريخ الهجري في الطباعة */
+        .print-hijri-date {
+            background: #f3e5f5;
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            color: #7b1fa2;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
         @media print {
             body * { 
                 visibility: hidden; 
@@ -745,14 +759,14 @@
             .print-grid-item-price, .print-grid-item-total {
                 font-size: 14px !important;
             }
-            .print-pickup-time {
+            .print-delivery-time {
                 padding: 8px !important;
                 font-size: 14px !important;
             }
-            .print-pickup-time-label {
+            .print-delivery-time-label {
                 font-size: 14px !important;
             }
-            .print-pickup-time-value {
+            .print-delivery-time-value {
                 font-size: 16px !important;
             }
             .print-notes-section {
@@ -765,6 +779,10 @@
             .print-note-item {
                 font-size: 13px !important;
                 padding: 6px 0 !important;
+            }
+            .print-hijri-date {
+                font-size: 12px !important;
+                padding: 6px !important;
             }
         }
         
@@ -1031,6 +1049,28 @@
                 }
             }
             return 0;
+        }
+
+        // دالة لتحويل التاريخ إلى هجري
+        function convertToHijri(gregorianDate) {
+            const gYear = gregorianDate.getFullYear();
+            const gMonth = gregorianDate.getMonth() + 1;
+            const gDay = gregorianDate.getDate();
+            
+            // معادلة تقريبية للتحويل
+            const hijriYear = Math.floor((gYear - 622) * 1.03);
+            const hijriMonth = gMonth;
+            const hijriDay = gDay;
+            
+            const hijriMonths = [
+                'محرم', 'صفر', 'ربيع الأول', 'ربيع الآخر', 
+                'جمادى الأولى', 'جمادى الآخرة', 'رجب', 
+                'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'
+            ];
+            
+            const hijriMonthName = hijriMonths[(hijriMonth - 1) % 12];
+            
+            return `${hijriDay} ${hijriMonthName} ${hijriYear} هـ`;
         }
 
         function startSystem() {
@@ -1489,7 +1529,7 @@
                 if(order.pickupTime && order.pickupTime.includes('فوري')) {
                     timeTag = `<span class="tag tag-now"><i class="fas fa-fire"></i> فوري</span>`;
                 } else {
-                    timeTag = `<span class="tag tag-later"><i class="fas fa-clock"></i> ${order.pickupTime}</span>`;
+                    timeTag = `<span class="tag tag-later"><i class="fas fa-clock"></i> وقت محدد</span>`;
                 }
 
                 // إضافة تاج الحالة بناءً على تبويب العرض
@@ -1848,26 +1888,60 @@
 
             const paymentText = formatPaymentMethod(order.paymentMethod);
             
-            let pickupTimeHtml = '';
-            let pickupTimeClass = '';
+            // قسم توقيت التجهيز المتقدم
+            let deliveryTimeHtml = '';
+            let deliveryTimeClass = '';
             
             if (order.pickupTime) {
                 if (order.pickupTime.includes('فوري')) {
-                    pickupTimeClass = 'urgent';
-                    pickupTimeHtml = `
-                        <div class="print-pickup-time ${pickupTimeClass}">
-                            <div class="print-pickup-time-label">⏰ توقيت التجهيز:</div>
-                            <div class="print-pickup-time-value">فوري</div>
+                    deliveryTimeClass = 'urgent';
+                    deliveryTimeHtml = `
+                        <div class="print-delivery-time ${deliveryTimeClass}">
+                            <div class="print-delivery-time-label">⏰ توقيت التجهيز:</div>
+                            <div class="print-delivery-time-value">فوري</div>
                         </div>
                     `;
                 } else {
-                    pickupTimeClass = 'scheduled';
-                    pickupTimeHtml = `
-                        <div class="print-pickup-time ${pickupTimeClass}">
-                            <div class="print-pickup-time-label">⏰ توقيت التجهيز:</div>
-                            <div class="print-pickup-time-value">${order.pickupTime}</div>
+                    deliveryTimeClass = 'scheduled';
+                    
+                    // محاولة استخراج معلومات التاريخ والوقت المتقدم من النص
+                    let displayTime = order.pickupTime;
+                    
+                    // إذا كان النص يحتوي على معلومات متقدمة
+                    if (order.pickupTime.includes('-')) {
+                        const parts = order.pickupTime.split('-').map(p => p.trim());
+                        displayTime = parts.join(' - ');
+                    }
+                    
+                    deliveryTimeHtml = `
+                        <div class="print-delivery-time ${deliveryTimeClass}">
+                            <div class="print-delivery-time-label">⏰ توقيت التجهيز المطلوب:</div>
+                            <div class="print-delivery-time-value">${displayTime}</div>
                         </div>
                     `;
+                    
+                    // إضافة التاريخ الهجري إذا كان هناك تاريخ محدد
+                    if (order.pickupTime.includes('/')) {
+                        try {
+                            const dateMatch = order.pickupTime.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                            if (dateMatch) {
+                                const day = parseInt(dateMatch[1]);
+                                const month = parseInt(dateMatch[2]);
+                                const year = parseInt(dateMatch[3]);
+                                
+                                const hijriDateObj = new Date(year, month - 1, day);
+                                const hijriDate = convertToHijri(hijriDateObj);
+                                
+                                deliveryTimeHtml += `
+                                    <div class="print-hijri-date">
+                                        📅 ${hijriDate}
+                                    </div>
+                                `;
+                            }
+                        } catch (e) {
+                            console.log('تعذر تحويل التاريخ إلى هجري:', e);
+                        }
+                    }
                 }
             }
 
@@ -1928,9 +2002,13 @@
                         <span class="print-customer-label">طريقة الدفع:</span>
                         <span class="print-customer-value">${paymentText}</span>
                     </div>
+                    <div class="print-customer-row">
+                        <span class="print-customer-label">نوع العميل:</span>
+                        <span class="print-customer-value">${order.type}</span>
+                    </div>
                 </div>
                 
-                ${pickupTimeHtml}
+                ${deliveryTimeHtml}
                 
                 ${notesHtml}
 
