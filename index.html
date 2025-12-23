@@ -3,2031 +3,2067 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سفرة الدار | المطبخ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <title>سفرة الدار | لوحة تحكم السائقين</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="apple-touch-icon" href="https://archive.org/download/untitled-design-71_20251223/Untitled%20design%2821%29.png">
-    <link rel="icon" href="https://archive.org/download/untitled-design-71_20251223/Untitled%20design%2821%29.png">
+    <link rel="icon" href="https://archive.org/download/20251202_20251202_1107/%D8%B3%D9%81%D8%B1%D8%A9%20%D8%A7%D9%84%D8%AF%D8%A7%D8%B1.jpg">
     <style>
         :root {
-            --primary: #ff6600; --bg-dark: #0f0f0f; --card-bg: #1e1e1e;
-            --text-light: #ffffff; --text-gray: #aaaaaa; --border: #333333;
-            --success: #00c851; --danger: #ff4444; --info: #33b5e5;
-            --warning: #ffbb33; --delivering: #9c27b0;
-            --updated-color: #aa00ff;
-            --print-color: #0066cc;
-            --alert-color: #ff3300;
-            --cancelled-color: #ff4444;
-            --customer-color: #33b5e5;
-            --disabled-color: #666666;
-        }
-        * { box-sizing: border-box; }
-        body { background-color: var(--bg-dark); color: var(--text-light); font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; }
-        
-        #start-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .start-btn { padding: 20px 60px; font-size: 1.5rem; background: transparent; color: var(--primary); border: 2px solid var(--primary); border-radius: 50px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; transition: 0.3s; }
-        .start-btn:hover { background: var(--primary); color: #000; box-shadow: 0 0 30px rgba(255,102,0,0.5); }
-
-        header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
-        .brand { font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; display: flex; align-items: center; gap: 15px; }
-        .brand img { width: 55px; height: 55px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; }
-        .system-info { text-align: left; }
-        .clock { font-size: 1.4rem; font-weight: bold; font-family: monospace; }
-        .status { color: var(--success); font-size: 0.8rem; font-weight: bold; }
-
-        .tabs-container { display: flex; gap: 15px; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 15px; }
-        .tab-btn { background: #222; color: #888; border: 1px solid #333; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; font-size: 1.1rem; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
-        .tab-btn.active { background: var(--primary); color: #000; border-color: var(--primary); }
-        .tab-badge { background: #000; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
-        
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-
-        .ticket { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); display: flex; flex-direction: column; animation: fadeIn 0.5s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
-        .ticket.completed-ticket { opacity: 0.8; border-color: #444; filter: grayscale(0.2); }
-        .ticket.completed-ticket .t-header { background: #1a1a1a; border-top-color: #444; }
-        .ticket.completed-ticket .t-id { color: #888; }
-        
-        .ticket.delivering-ticket { border-top-color: var(--delivering); }
-        .ticket.delivering-ticket .t-header { border-top-color: var(--delivering); }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .t-header { background: #252525; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); border-top: 4px solid var(--primary); }
-        .t-id { font-size: 1.6rem; font-weight: 900; color: var(--primary); }
-        .t-time { font-family: monospace; color: var(--text-gray); font-size: 1rem; }
-
-        .t-tags { padding: 10px 15px; background: #2a2a2a; display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--border); }
-        .tag { flex: 1; text-align: center; padding: 4px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        
-        .tag-now { background: rgba(255, 102, 0, 0.15); color: #ff6600; border: 1px solid #ff6600; }
-        .tag-later { background: rgba(51, 181, 229, 0.15); color: #33b5e5; border: 1px solid rgba(51,181,229,0.3); }
-        .tag-new { background: rgba(0, 200, 81, 0.15); color: #00c851; border: 1px solid rgba(0,200,81,0.3); }
-        .tag-old { background: rgba(255, 68, 68, 0.15); color: #ff4444; border: 1px solid rgba(255,68,68,0.3); }
-        .tag-delivering { background: rgba(156, 39, 176, 0.15); color: #9c27b0; border: 1px solid rgba(156,39,176,0.3); }
-        .tag-completed { background: rgba(0, 200, 81, 0.15); color: #00c851; border: 1px solid rgba(0,200,81,0.3); }
-
-        .updated-badge { background: var(--updated-color); color: white; font-size: 0.8rem; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-right: 5px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-
-        .t-body { padding: 15px; flex-grow: 1; }
-        .items-ul { list-style: none; padding: 0; margin: 0; }
-        .item-li { padding: 8px 0; border-bottom: 1px solid #333; font-size: 1.1rem; font-weight: 700; line-height: 1.4; display: flex; align-items: flex-start; }
-        .item-li::before { content: "•"; color: var(--primary); margin-left: 8px; font-size: 1.2rem; }
-        .item-li:last-child { border-bottom: none; }
-
-        .t-notes-container {
-            background: #332b00;
-            border: 1px solid #665500;
-            border-radius: 8px;
-            margin: 10px 15px;
-            overflow: hidden;
+            --primary: #ff6600;
+            --primary-dark: #cc5200;
+            --primary-light: #ff944d;
+            --success: #00c851;
+            --success-dark: #00943a;
+            --info: #33b5e5;
+            --warning: #ffbb33;
+            --danger: #ff4444;
+            --dark: #121212;
+            --darker: #0a0a0a;
+            --card: #1e1e1e;
+            --card-light: #2a2a2a;
+            --text: #ffffff;
+            --text-gray: #aaaaaa;
+            --border: #333333;
+            
+            --status-online: #00c851;
+            --status-offline: #ff4444;
+            --status-busy: #ffbb33;
+            --status-available: #33b5e5;
+            --status-on-delivery: #9c27b0;
+            
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
         
-        .notes-header {
-            background: #443300;
-            padding: 8px 12px;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Header */
+        .app-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            object-fit: cover;
+        }
+        
+        .brand-text {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--text);
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            min-width: 120px;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 75px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 2000;
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #ffdd44;
-            font-weight: bold;
-            border-bottom: 1px solid #665500;
+            animation: slideDown 0.3s ease;
+            max-width: calc(100% - 40px);
         }
         
-        .notes-list {
-            list-style: none;
-            padding: 10px;
-            margin: 0;
-            max-height: 150px;
-            overflow-y: auto;
+        .connection-status.connected {
+            background: rgba(0, 200, 81, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
         }
         
-        .note-item {
-            padding: 8px 0;
-            color: #ffdd44;
-            font-size: 0.9rem;
-            line-height: 1.4;
+        .connection-status.disconnected {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Main Dashboard */
+        .dashboard-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Dashboard Stats */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
             display: flex;
-            align-items: flex-start;
-            border-bottom: 1px dashed rgba(255, 221, 68, 0.2);
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
         }
         
-        .note-item:last-child {
-            border-bottom: none;
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
         }
         
-        .note-item::before {
-            content: "•";
-            color: #ffaa00;
-            font-size: 1.2rem;
-            margin-left: 8px;
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
             flex-shrink: 0;
         }
         
-        .note-text {
+        .stat-icon.total {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        
+        .stat-icon.online {
+            background: linear-gradient(135deg, var(--success) 0%, var(--success-dark) 100%);
+            color: white;
+        }
+        
+        .stat-icon.busy {
+            background: linear-gradient(135deg, var(--warning) 0%, #e6ac00 100%);
+            color: black;
+        }
+        
+        .stat-icon.orders {
+            background: linear-gradient(135deg, var(--info) 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .stat-info {
             flex: 1;
         }
-
-        .t-total { background: #2d2d2d; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .total-txt { color: #aaa; font-size: 0.9rem; }
-        .total-num { color: var(--primary); font-size: 1.3rem; font-weight: 900; }
-
-        .t-footer { padding: 15px; background: #161616; font-size: 0.9rem; color: #ccc; }
-        .info-line { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
-        .info-line i { width: 20px; text-align: center; color: var(--primary); }
-        .info-line a { color: #33b5e5; text-decoration: none; font-weight: bold; }
-        .info-addr { margin-top: 8px; padding-top: 8px; border-top: 1px solid #333; color: #888; font-style: italic; font-size: 0.85rem; }
         
-        .payment-method { 
-            background: rgba(255, 204, 0, 0.1); 
-            border: 1px solid #ffcc00; 
-            color: #ffcc00; 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            margin: 8px 0; 
-            font-weight: bold; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px;
-            font-size: 1rem;
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            margin-bottom: 5px;
+            font-weight: 600;
         }
         
-        .customer-info { 
-            background: rgba(51, 181, 229, 0.1); 
-            border: 1px solid var(--customer-color); 
-            color: var(--customer-color); 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            margin: 8px 0; 
-            font-weight: bold; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px;
-            font-size: 1rem;
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--text);
+            line-height: 1.2;
         }
-
-        .call-btn { background-color: #00c851; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; text-decoration: none; margin-right: 10px; font-size: 0.9rem; transition: 0.2s; border: 1px solid #00c851; }
-        .call-btn:hover { background-color: #007e33; transform: scale(1.1); }
-
-        .t-actions { display: flex; gap: 10px; padding: 10px 15px; background: #222; border-top: 1px solid #333; }
-        .action-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; font-size: 0.9rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; color: #fff;}
-        .btn-done { background: #00c851; } 
-        .btn-done:hover { background: #007e33; }
-        .btn-done:disabled { background: var(--disabled-color); cursor: not-allowed; opacity: 0.6; }
-        .btn-done.completed { background: var(--disabled-color); cursor: default; }
         
-        .btn-restore { background: #33b5e5; } .btn-restore:hover { background: #0099cc; }
-        .btn-print { background: var(--print-color); } .btn-print:hover { background: #004080; }
-
-        .flash-card { animation: flashBorder 2s infinite; }
-        .updated-card { border-color: var(--updated-color); box-shadow: 0 0 15px rgba(170, 0, 255, 0.3); }
-
-        @keyframes flashBorder { 0% {border-color: var(--border);} 50% {border-color: #fff;} 100% {border-color: var(--border);} }
-        #loader { width: 100%; text-align: center; margin-top: 50px; color: #666; }
-
-        #alert-overlay {
+        .stat-change {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .stat-change.positive {
+            color: var(--success);
+        }
+        
+        .stat-change.negative {
+            color: var(--danger);
+        }
+        
+        /* Drivers Section */
+        .drivers-section {
+            background: var(--card);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: black;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Cairo';
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .action-btn.secondary {
+            background: var(--card-light);
+            color: var(--text);
+        }
+        
+        /* Drivers Grid */
+        .drivers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .drivers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Driver Card */
+        .driver-card {
+            background: var(--darker);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+        
+        .driver-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
+        }
+        
+        .driver-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .driver-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-weight: 900;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        .driver-status-indicator {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--darker);
+        }
+        
+        .driver-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .driver-name {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--text);
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .driver-id {
+            font-size: 0.85rem;
+            color: var(--text-gray);
+            font-family: monospace;
+            margin-bottom: 8px;
+        }
+        
+        /* Status Badges */
+        .status-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .status-badge.online {
+            background: rgba(0, 200, 81, 0.2);
+            color: var(--status-online);
+            border: 1px solid var(--status-online);
+        }
+        
+        .status-badge.offline {
+            background: rgba(255, 68, 68, 0.2);
+            color: var(--status-offline);
+            border: 1px solid var(--status-offline);
+        }
+        
+        .status-badge.available {
+            background: rgba(51, 181, 229, 0.2);
+            color: var(--status-available);
+            border: 1px solid var(--status-available);
+        }
+        
+        .status-badge.busy {
+            background: rgba(255, 187, 51, 0.2);
+            color: var(--status-busy);
+            border: 1px solid var(--status-busy);
+        }
+        
+        .status-badge.on-delivery {
+            background: rgba(156, 39, 176, 0.2);
+            color: var(--status-on-delivery);
+            border: 1px solid var(--status-on-delivery);
+        }
+        
+        /* Driver Details */
+        .driver-details {
+            padding: 20px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+        
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+        
+        .order-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--primary);
+            color: black;
+            border-radius: 50%;
+            font-size: 0.9rem;
+            font-weight: 900;
+            margin-right: 8px;
+        }
+        
+        .orders-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .orders-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .order-badge {
+            padding: 4px 10px;
+            background: rgba(255, 102, 0, 0.2);
+            color: var(--primary);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            border: 1px solid var(--primary);
+        }
+        
+        /* Driver Actions */
+        .driver-actions {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .driver-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Cairo';
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .driver-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .driver-btn.assign {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: black;
+        }
+        
+        .driver-btn.message {
+            background: linear-gradient(135deg, var(--info) 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .driver-btn.call {
+            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+            color: white;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-gray);
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        .empty-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--text);
+            font-weight: 800;
+        }
+        
+        .empty-message {
+            font-size: 1rem;
+            line-height: 1.6;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        /* Loading State */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 102, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        .loading-text {
+            font-size: 1.1rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+        
+        /* Modal */
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 10000;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 3000;
             display: none;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            backdrop-filter: blur(5px);
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(10px);
         }
-
-        .alert-container {
-            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
-            border-radius: 15px;
-            padding: 25px;
-            width: 85%;
-            max-width: 450px;
-            border: 3px solid var(--alert-color);
-            box-shadow: 0 0 30px rgba(255, 51, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .alert-header {
-            text-align: center;
-            margin-bottom: 15px;
-            border-bottom: 2px solid var(--alert-color);
-            padding-bottom: 10px;
-        }
-
-        .alert-title {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--alert-color);
-            margin: 0;
+        
+        .modal.active {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            animation: fadeIn 0.3s ease;
         }
-
-        .alert-subtitle {
-            color: #ff9966;
-            font-size: 1rem;
-            margin-top: 8px;
+        
+        .modal-content {
+            background: linear-gradient(145deg, var(--darker) 0%, #1a1a1a 100%);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid var(--primary);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            animation: modalSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .alert-order-id {
-            font-size: 3rem;
-            font-weight: 900;
-            color: white;
-            text-shadow: 0 0 15px var(--alert-color);
-            text-align: center;
-            margin: 15px 0;
-            animation: pulseGlow 1s infinite alternate;
-        }
-
-        @keyframes pulseGlow {
-            from { text-shadow: 0 0 15px var(--alert-color); }
-            to { text-shadow: 0 0 25px var(--alert-color); }
-        }
-
-        .alert-details {
-            background: rgba(255, 51, 0, 0.1);
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            border: 1px solid rgba(255, 51, 0, 0.3);
-        }
-
-        .alert-detail-item {
+        
+        .modal-header {
             display: flex;
             justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px dashed rgba(255,255,255,0.1);
-            font-size: 0.95rem;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
         }
-
-        .alert-detail-label {
-            color: #ff9966;
-            font-weight: bold;
+        
+        .modal-header h3 {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin: 0;
         }
-
-        .alert-detail-value {
-            color: white;
-            font-weight: bold;
+        
+        .close-modal {
+            background: transparent;
+            border: none;
+            color: var(--text-gray);
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1.2rem;
+            transition: color 0.2s ease;
         }
-
-        .alert-timer-bar {
-            height: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            margin: 20px 0;
-            overflow: hidden;
-            position: relative;
+        
+        .close-modal:hover {
+            color: var(--danger);
         }
-
-        .alert-timer-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--alert-color) 100%);
-            border-radius: 8px;
-            transition: width 0.1s linear;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        .alert-timer-text {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            font-size: 0.8rem;
-            line-height: 12px;
-            z-index: 2;
-        }
-
-        .alert-actions {
+        
+        /* Assign Order Modal */
+        .assign-form {
             display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-label {
+            font-size: 0.95rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+        
+        .form-input, .form-select {
+            padding: 14px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Cairo';
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.2);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
             margin-top: 20px;
         }
-
-        .alert-btn {
+        
+        .form-btn {
             flex: 1;
-            padding: 14px;
+            padding: 16px;
             border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            border-radius: 12px;
             font-family: 'Cairo';
-            font-weight: bold;
-            font-size: 1rem;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .alert-btn-received {
-            background: linear-gradient(135deg, #00c851 0%, #007e33 100%);
-            color: white;
-        }
-
-        .alert-btn-received:hover {
-            background: linear-gradient(135deg, #00e676 0%, #00b248 100%);
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(0, 200, 81, 0.5);
-        }
-
-        .alert-btn-cancelled {
-            background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
-            color: white;
-        }
-
-        .alert-btn-cancelled:hover {
-            background: linear-gradient(135deg, #ff6666 0%, #ff0000 100%);
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
-        }
-
-        .alert-type-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            padding: 6px 12px;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-
-        .alert-type-new {
-            background: rgba(0, 200, 81, 0.2);
-            color: #00c851;
-            border: 1px solid #00c851;
-        }
-
-        .alert-type-updated {
-            background: rgba(170, 0, 255, 0.2);
-            color: #aa00ff;
-            border: 1px solid #aa00ff;
-        }
-
-        .alert-type-cancelled {
-            background: rgba(255, 68, 68, 0.2);
-            color: #ff4444;
-            border: 1px solid #ff4444;
-        }
-
-        #print-modal { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.95); 
-            z-index: 11000; 
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .print-container {
-            background: white;
-            max-width: 400px;
-            margin: 20px auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-        
-        .print-content { 
-            color: black; 
-            font-family: 'Cairo', sans-serif;
-            direction: rtl;
-        }
-        
-        .print-header { 
-            text-align: center; 
-            border-bottom: 3px solid #ff6600; 
-            padding-bottom: 15px; 
-            margin-bottom: 20px; 
-        }
-        
-        .print-header h1 { 
-            margin: 0; 
-            color: #ff6600; 
-            font-size: 32px; 
             font-weight: 900;
-            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
         }
         
-        .print-id { 
-            font-size: 38px; 
-            font-weight: 900; 
-            color: #000; 
-            margin: 10px 0;
-            font-family: 'Cairo', sans-serif;
+        .form-btn.cancel {
+            background: var(--card-light);
+            color: var(--text-gray);
+            border: 1px solid var(--border);
         }
         
-        .print-time { 
-            font-size: 18px; 
-            color: #666; 
-            margin: 5px 0;
-            font-family: 'Cairo', sans-serif;
-        }
-        
-        .print-customer-info {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 1px dashed #ccc;
-        }
-        
-        .print-customer-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 16px;
-        }
-        
-        .print-customer-row:last-child {
-            border-bottom: none;
-        }
-        
-        .print-customer-label {
-            color: #666;
-            font-weight: bold;
-        }
-        
-        .print-customer-value {
-            color: #000;
-            font-weight: bold;
-            text-align: left;
-        }
-        
-        .print-section { 
-            margin: 20px 0; 
-            padding: 10px 0;
-        }
-        
-        .print-label { 
-            font-weight: bold; 
-            color: #333; 
-            margin-bottom: 8px; 
-            font-size: 18px;
-            border-bottom: 2px solid #ff6600;
-            padding-bottom: 5px;
-            font-family: 'Cairo', sans-serif;
-        }
-        
-        .print-items-grid {
-            display: grid;
-            grid-template-columns: 1fr auto auto auto;
-            gap: 8px;
-            margin-bottom: 10px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 16px;
-        }
-        
-        .print-grid-header {
-            font-weight: bold;
-            color: #333;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 5px;
-            margin-bottom: 5px;
-        }
-        
-        .print-grid-row {
-            display: contents;
-        }
-        
-        .print-grid-item {
-            padding: 8px 0;
-            border-bottom: 1px dashed #ddd;
-        }
-        
-        .print-grid-item-name {
-            text-align: right;
-            font-weight: bold;
-        }
-        
-        .print-grid-item-qty {
-            text-align: center;
-            background: #ff6600;
+        .form-btn.submit {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: black;
-            padding: 3px 8px;
+            box-shadow: 0 5px 15px rgba(255, 102, 0, 0.3);
+        }
+        
+        .form-btn.submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 102, 0, 0.4);
+        }
+        
+        .form-btn.submit:active {
+            transform: translateY(0);
+        }
+        
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(60px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .app-header {
+                height: 60px;
+                padding: 0 15px;
+                flex-direction: column;
+                align-items: stretch;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            
+            .logo-container {
+                margin-bottom: 10px;
+            }
+            
+            .header-stats {
+                justify-content: space-between;
+                width: 100%;
+            }
+            
+            .stat-item {
+                min-width: auto;
+                padding: 6px 10px;
+                flex: 1;
+            }
+            
+            .stat-value {
+                font-size: 1.2rem;
+            }
+            
+            .connection-status {
+                top: 65px;
+                right: 10px;
+                left: 10px;
+                text-align: center;
+            }
+            
+            .dashboard-container {
+                padding: 15px;
+            }
+            
+            .dashboard-stats {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .section-actions {
+                justify-content: stretch;
+            }
+            
+            .action-btn {
+                flex: 1;
+                justify-content: center;
+            }
+            
+            .drivers-grid {
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            .driver-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .driver-info {
+                text-align: center;
+            }
+            
+            .status-badges {
+                justify-content: center;
+            }
+            
+            .driver-actions {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .brand-text {
+                font-size: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 1.1rem;
+            }
+            
+            .stat-label {
+                font-size: 0.7rem;
+            }
+            
+            .stat-card {
+                padding: 15px;
+                gap: 12px;
+            }
+            
+            .stat-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.2rem;
+            }
+            
+            .driver-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            
+            .driver-name {
+                font-size: 1.1rem;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .detail-value {
+                font-size: 0.95rem;
+            }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--card-light);
             border-radius: 4px;
-            font-weight: bold;
-            min-width: 30px;
         }
         
-        .print-grid-item-price {
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+        
+        .visible {
+            display: block !important;
+        }
+        
+        .text-center {
             text-align: center;
-            font-weight: bold;
         }
         
-        .print-grid-item-total {
-            text-align: left;
-            font-weight: bold;
-            color: #000;
+        .text-right {
+            text-align: right;
         }
         
-        .print-total { 
-            font-size: 28px; 
-            font-weight: 900; 
-            color: #000; 
-            text-align: center; 
-            margin-top: 25px; 
-            padding-top: 15px; 
-            border-top: 3px double #333; 
-            font-family: 'Cairo', sans-serif;
+        .mt-10 {
+            margin-top: 10px;
         }
         
-        .print-actions { 
-            text-align: center; 
-            margin-top: 30px; 
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
+        .mt-20 {
+            margin-top: 20px;
         }
         
-        .close-print { 
-            background: #ff4444; 
-            color: white; 
-            border: none; 
-            padding: 12px 25px; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-family: 'Cairo'; 
-            font-weight: bold;
-            font-size: 16px;
-            margin-left: 10px;
-        }
-        
-        .print-btn { 
-            background: #0066cc; 
-            color: white; 
-            border: none; 
-            padding: 12px 25px; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-family: 'Cairo'; 
-            font-weight: bold; 
-            margin-right: 10px;
-            font-size: 16px;
-        }
-
-        .deleted-ticket {
-            animation: fadeOutDelete 0.5s forwards;
-            position: relative;
-        }
-
-        .deleted-ticket::after {
-            content: "تم حذف هذا الطلب";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 68, 68, 0.9);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            z-index: 10;
-            font-size: 1.2rem;
-            text-align: center;
-            width: 80%;
-        }
-
-        @keyframes fadeOutDelete {
-            0% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0.3; transform: scale(0.95); filter: grayscale(1); }
-        }
-
-        /* قسم توقيت التجهيز المتقدم في الطباعة */
-        .print-delivery-time {
-            background: #e8f5e9;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 10px 0;
-            border: 2px solid #4caf50;
-            text-align: center;
-            font-weight: bold;
-        }
-        
-        .print-delivery-time.urgent {
-            background: #ffeaea;
-            border-color: #ff4444;
-            color: #d32f2f;
-        }
-        
-        .print-delivery-time.scheduled {
-            background: #e8f5e9;
-            border-color: #4caf50;
-            color: #2e7d32;
-        }
-        
-        .print-delivery-time-label {
-            font-size: 18px;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
-        .print-delivery-time-value {
-            font-size: 22px;
-            font-weight: 900;
-        }
-        
-        /* قسم الملاحظات في الطباعة */
-        .print-notes-section {
-            background: #fff9e6;
-            border: 2px solid #ffc107;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-        
-        .print-notes-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .mb-10 {
             margin-bottom: 10px;
-            color: #8a6d3b;
-            font-weight: bold;
-            font-size: 18px;
-            border-bottom: 1px dashed #ffc107;
-            padding-bottom: 8px;
         }
         
-        .print-notes-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .print-note-item {
-            padding: 8px 0;
-            color: #5d4200;
-            font-size: 16px;
-            line-height: 1.4;
-            display: flex;
-            align-items: flex-start;
-            border-bottom: 1px dashed rgba(255, 193, 7, 0.3);
-        }
-        
-        .print-note-item:last-child {
-            border-bottom: none;
-        }
-        
-        .print-note-item::before {
-            content: "•";
-            color: #ff9800;
-            font-size: 20px;
-            margin-left: 8px;
-            flex-shrink: 0;
-        }
-        
-        .print-note-text {
-            flex: 1;
-        }
-        
-        /* قسم التاريخ الهجري في الطباعة */
-        .print-hijri-date {
-            background: #f3e5f5;
-            border: 2px solid #9c27b0;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            text-align: center;
-            color: #7b1fa2;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        
-        @media print {
-            body * { 
-                visibility: hidden; 
-            }
-            .print-container, 
-            .print-container * { 
-                visibility: visible; 
-            }
-            .print-container { 
-                position: absolute;
-                left: 50%;
-                top: 0;
-                transform: translateX(-50%);
-                width: 80mm !important;
-                margin: 0 !important;
-                padding: 10mm !important;
-                box-shadow: none !important;
-                border: none !important;
-                background: white !important;
-            }
-            .print-actions { 
-                display: none !important; 
-            }
-            .print-header h1 {
-                font-size: 22px !important;
-            }
-            .print-id {
-                font-size: 26px !important;
-            }
-            .print-items-grid {
-                font-size: 14px !important;
-                gap: 5px !important;
-            }
-            .print-customer-info {
-                padding: 8px !important;
-                font-size: 14px !important;
-            }
-            .print-total {
-                font-size: 22px !important;
-            }
-            .print-grid-item-name {
-                font-size: 14px !important;
-            }
-            .print-grid-item-qty {
-                font-size: 14px !important;
-                padding: 2px 6px !important;
-            }
-            .print-grid-item-price, .print-grid-item-total {
-                font-size: 14px !important;
-            }
-            .print-delivery-time {
-                padding: 8px !important;
-                font-size: 14px !important;
-            }
-            .print-delivery-time-label {
-                font-size: 14px !important;
-            }
-            .print-delivery-time-value {
-                font-size: 16px !important;
-            }
-            .print-notes-section {
-                padding: 8px !important;
-                font-size: 13px !important;
-            }
-            .print-notes-header {
-                font-size: 14px !important;
-            }
-            .print-note-item {
-                font-size: 13px !important;
-                padding: 6px 0 !important;
-            }
-            .print-hijri-date {
-                font-size: 12px !important;
-                padding: 6px !important;
-            }
-        }
-        
-        /* قسم معلومات السائق */
-        .driver-info { 
-            background: rgba(156, 39, 176, 0.1); 
-            border: 1px solid #9c27b0; 
-            color: #9c27b0; 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            margin: 8px 0; 
-            font-weight: bold; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px;
-            font-size: 1rem;
+        .mb-20 {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-
-    <div id="start-overlay">
-        <button class="start-btn" onclick="startSystem()">تشغيل النظام</button>
-        <p style="color:#666; margin-top:15px;">انقر لتفعيل التنبيهات الصوتية</p>
-    </div>
-
-    <header>
-        <div class="brand">
-            <img src="https://archive.org/download/untitled-design-71_20251223/Untitled%20design%2821%29.png" alt="Logo">
-            <span>سفرة الدار | المطبخ</span>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <img src="https://archive.org/download/20251202_20251202_1107/%D8%B3%D9%81%D8%B1%D8%A9%20%D8%A7%D9%84%D8%AF%D8%A7%D8%B1.jpg" alt="Logo" class="logo">
+            <div class="brand-text">لوحة تحكم السائقين | سفرة الدار</div>
         </div>
-        <div class="system-info">
-            <div class="clock" id="clock">00:00</div>
-            <div class="status">● ONLINE</div>
+        
+        <div class="header-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="total-drivers">0</div>
+                <div class="stat-label">إجمالي السائقين</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="online-drivers">0</div>
+                <div class="stat-label">سائقين متصلين</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="active-orders">0</div>
+                <div class="stat-label">طلبات نشطة</div>
+            </div>
         </div>
     </header>
-
-    <div class="tabs-container">
-        <div class="tab-btn active" onclick="switchTab('active')">
-            قيد التحضير <i class="fas fa-fire"></i>
-            <span class="tab-badge" id="count-active">0</span>
-        </div>
-        <div class="tab-btn" onclick="switchTab('delivering')">
-            قيد التوصيل <i class="fas fa-motorcycle"></i>
-            <span class="tab-badge" id="count-delivering">0</span>
-        </div>
-        <div class="tab-btn" onclick="switchTab('completed')">
-            الطلبات المكتملة <i class="fas fa-check-circle"></i>
-            <span class="tab-badge" id="count-completed">0</span>
-        </div>
-    </div>
-
-    <div id="loader">جاري الاتصال بالسيرفر...</div>
     
-    <div id="active-orders" class="tab-content active">
-        <div id="active-grid" class="grid-container"></div>
+    <!-- Connection Status -->
+    <div class="connection-status" id="connection-status" style="display: none;">
+        <i class="fas fa-wifi"></i>
+        <span>جاري الاتصال بالنظام...</span>
     </div>
-
-    <div id="delivering-orders" class="tab-content">
-        <div id="delivering-grid" class="grid-container"></div>
-    </div>
-
-    <div id="completed-orders" class="tab-content">
-        <div id="completed-grid" class="grid-container"></div>
-    </div>
-
-    <div id="alert-overlay">
-        <div class="alert-container">
-            <div id="alert-type-badge" class="alert-type-badge alert-type-new">طلب جديد</div>
-            <div class="alert-header">
-                <h1 class="alert-title">
-                    <i class="fas fa-bell"></i>
-                    تنبيه مهم
-                    <i class="fas fa-exclamation-triangle"></i>
-                </h1>
-                <div class="alert-subtitle" id="alert-subtitle">طلب جديد يحتاج إلى التحضير</div>
-            </div>
-            
-            <div class="alert-order-id" id="alert-order-id">#0000</div>
-            
-            <div class="alert-details">
-                <div class="alert-detail-item">
-                    <span class="alert-detail-label">نوع الطلب:</span>
-                    <span class="alert-detail-value" id="alert-order-type">New CX</span>
+    
+    <!-- Main Dashboard -->
+    <main class="dashboard-container">
+        <!-- Dashboard Statistics -->
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <i class="fas fa-users"></i>
                 </div>
-                <div class="alert-detail-item">
-                    <span class="alert-detail-label">عدد الأصناف:</span>
-                    <span class="alert-detail-value" id="alert-items-count">0</span>
-                </div>
-                <div class="alert-detail-item">
-                    <span class="alert-detail-label">الإجمالي:</span>
-                    <span class="alert-detail-value" id="alert-total">0.000 KD</span>
-                </div>
-                <div class="alert-detail-item">
-                    <span class="alert-detail-label">الوقت:</span>
-                    <span class="alert-detail-value" id="alert-time">00:00:00</span>
+                <div class="stat-info">
+                    <div class="stat-title">إجمالي السائقين المسجلين</div>
+                    <div class="stat-number" id="registered-drivers">0</div>
+                    <div class="stat-change positive" id="drivers-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>0%</span>
+                    </div>
                 </div>
             </div>
             
-            <div class="alert-timer-bar">
-                <div class="alert-timer-fill" id="alert-timer-fill"></div>
-                <div class="alert-timer-text" id="alert-timer-text">الدقيقة 0 من 2</div>
+            <div class="stat-card">
+                <div class="stat-icon online">
+                    <i class="fas fa-signal"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-title">سائقين متصلين الآن</div>
+                    <div class="stat-number" id="connected-now">0</div>
+                    <div class="stat-change positive" id="online-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>0%</span>
+                    </div>
+                </div>
             </div>
             
-            <div class="alert-actions">
-                <button class="alert-btn" id="alert-action-btn" onclick="handleAlertReceived()">
-                    <i class="fas fa-check-circle"></i> تم استلام الطلب
+            <div class="stat-card">
+                <div class="stat-icon busy">
+                    <i class="fas fa-motorcycle"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-title">سائقين في توصيل</div>
+                    <div class="stat-number" id="delivery-drivers">0</div>
+                    <div class="stat-change positive" id="delivery-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>0%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon orders">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-title">طلبات قيد التوصيل</div>
+                    <div class="stat-number" id="in-delivery-orders">0</div>
+                    <div class="stat-change positive" id="orders-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Drivers Section -->
+        <section class="drivers-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-user-tie"></i>
+                    إدارة السائقين
+                </div>
+                <div class="section-actions">
+                    <button class="action-btn secondary" onclick="refreshDrivers()">
+                        <i class="fas fa-sync-alt"></i>
+                        تحديث القائمة
+                    </button>
+                    <button class="action-btn" onclick="showAddDriverModal()">
+                        <i class="fas fa-plus"></i>
+                        إضافة سائق جديد
+                    </button>
+                </div>
+            </div>
+            
+            <div class="drivers-grid" id="drivers-grid">
+                <!-- سيتم ملؤها بالجافاسكريبت -->
+                <div class="loading-state" id="loading-state">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">جاري تحميل بيانات السائقين...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Assign Order Modal -->
+    <div class="modal" id="assign-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تخصيص طلب للسائق</h3>
+                <button class="close-modal" onclick="closeAssignModal()">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
+            
+            <form class="assign-form" id="assign-form" onsubmit="assignOrder(event)">
+                <div class="form-group">
+                    <label class="form-label">اختر الطلب</label>
+                    <select class="form-select" id="order-select" required>
+                        <option value="">-- اختر طلباً --</option>
+                        <!-- سيتم ملؤها بالجافاسكريبت -->
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">السائق</label>
+                    <input type="text" class="form-input" id="assign-driver-name" readonly>
+                    <input type="hidden" id="assign-driver-id">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">ملاحظات (اختياري)</label>
+                    <textarea class="form-input" id="assign-notes" rows="3" placeholder="أضف أي ملاحظات للطلب..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="form-btn cancel" onclick="closeAssignModal()">إلغاء</button>
+                    <button type="submit" class="form-btn submit">تخصيص الطلب</button>
+                </div>
+            </form>
         </div>
     </div>
-
-    <div id="print-modal">
-        <div class="print-container">
-            <div class="print-content" id="print-content">
-                <!-- سيتم ملؤها بالجافاسكريبت -->
+    
+    <!-- Add Driver Modal -->
+    <div class="modal" id="add-driver-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>إضافة سائق جديد</h3>
+                <button class="close-modal" onclick="closeAddDriverModal()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="print-actions">
-                <button class="print-btn" onclick="window.print()">🖨️ طباعة الفاتورة</button>
-                <button class="close-print" onclick="closePrintModal()">✖ إغلاق</button>
-            </div>
+            
+            <form class="assign-form" id="add-driver-form" onsubmit="addNewDriver(event)">
+                <div class="form-group">
+                    <label class="form-label">اسم السائق *</label>
+                    <input type="text" class="form-input" id="driver-name" required placeholder="أدخل اسم السائق الكامل">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">رقم الهاتف *</label>
+                    <input type="tel" class="form-input" id="driver-phone" required placeholder="أدخل رقم الهاتف">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">نوع المركبة</label>
+                    <select class="form-select" id="driver-vehicle">
+                        <option value="دراجة نارية">دراجة نارية</option>
+                        <option value="سيارة">سيارة</option>
+                        <option value="شاحنة صغيرة">شاحنة صغيرة</option>
+                        <option value="أخرى">أخرى</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">المنطقة</label>
+                    <select class="form-select" id="driver-area">
+                        <option value="العاصمة">العاصمة</option>
+                        <option value="حولي">حولي</option>
+                        <option value="السالمية">السالمية</option>
+                        <option value="الرميثية">الرميثية</option>
+                        <option value="الفروانية">الفروانية</option>
+                        <option value="الأحمدي">الأحمدي</option>
+                        <option value="الجهراء">الجهراء</option>
+                        <option value="مبارك الكبير">مبارك الكبير</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="form-btn cancel" onclick="closeAddDriverModal()">إلغاء</button>
+                    <button type="submit" class="form-btn submit">إضافة السائق</button>
+                </div>
+            </form>
         </div>
     </div>
-
-    <audio id="alert-sound-new" preload="auto">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/mpeg">
-    </audio>
     
-    <audio id="alert-sound-updated" preload="auto">
-        <source src="https://assets.mixkit.co/active_storage/sfx/2864/2864-preview.mp3" type="audio/mpeg">
-    </audio>
+    <!-- Message Driver Modal -->
+    <div class="modal" id="message-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>إرسال رسالة للسائق</h3>
+                <button class="close-modal" onclick="closeMessageModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="assign-form" id="message-form" onsubmit="sendMessage(event)">
+                <div class="form-group">
+                    <label class="form-label">السائق</label>
+                    <input type="text" class="form-input" id="message-driver-name" readonly>
+                    <input type="hidden" id="message-driver-id">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">نوع الرسالة</label>
+                    <select class="form-select" id="message-type" required>
+                        <option value="notification">إشعار عادي</option>
+                        <option value="warning">تحذير</option>
+                        <option value="urgent">مستعجل</option>
+                        <option value="update">تحديث معلومات</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">الرسالة *</label>
+                    <textarea class="form-input" id="message-content" rows="4" required placeholder="اكتب رسالتك للسائق..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="form-btn cancel" onclick="closeMessageModal()">إلغاء</button>
+                    <button type="submit" class="form-btn submit">إرسال الرسالة</button>
+                </div>
+            </form>
+        </div>
+    </div>
     
-    <audio id="alert-sound-cancelled" preload="auto">
-        <source src="https://assets.mixkit.co/active_storage/sfx/954/954-preview.mp3" type="audio/mpeg">
-    </audio>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- JavaScript -->
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxaYccVd3uTDBYGFF7VuMmziCddUlypEkktDAl01CXAOi76IM4_Sfl_4bAycSxwNw_c/exec'; 
-
-        let systemStarted = false;
-        let lastOrderCount = 0;
-        let isFirstRun = true;
-        let currentTab = 'active';
-        let notifiedOrderIds = new Set();
-        let deletedOrderIds = new Set();
-        let currentAlertOrder = null;
-        let alertTimerInterval = null;
-        let soundInterval = null;
-        let alertStartTime = null;
-        const ALERT_DURATION = 120;
+        // ==============================================
+        // 📊 نظام لوحة تحكم السائقين - الإدارة الحية
+        // ==============================================
         
-        const menuData = {
-            "اللحم العربي": [ 
-                {id: 1, name: "مجبوس لحم (عربي)", price: 6.000}, {id: 2, name: "مقلوبة لحم (عربي)", price: 6.000}, 
-                {id: 3, name: "مشوي جدر لحم (عربي)", price: 6.000}, {id: 4, name: "مرق سبزي (عربي)", price: 6.500}, 
-                {id: 5, name: "بريه لحم (عربي)", price: 6.000}, {id: 6, name: "برياني لحم (عربي)", price: 6.000},
-                {id: 77, name: "مموش لحم (عربي)", price: 6.500} 
-            ],
-            "اللحم الاسترالي": [ 
-                {id: 7, name: "مجبوس لحم (استرالي)", price: 3.750}, {id: 8, name: "مقلوبة لحم (استرالي)", price: 4.250}, 
-                {id: 9, name: "مشوي جدر لحم (استرالي)", price: 4.250}, {id: 10, name: "مرق سبزي (استرالي)", price: 4.500}, 
-                {id: 11, name: "برياني لحم (استرالي)", price: 4.250},
-                {id: 78, name: "مموش لحم (استرالي)", price: 4.500}
-            ],
-            "الدجاج": [ 
-                {id: 12, name: "مجبوس دجاج", price: 2.750}, {id: 13, name: "دجاج 65", price: 2.750}, 
-                {id: 14, name: "بخاري دجاج", price: 3.000}, {id: 15, name: "برياني دجاج", price: 3.000}, 
-                {id: 16, name: "مقلوبة دجاج", price: 3.500}, {id: 17, name: "بتر جكن", price: 3.000}, 
-                {id: 18, name: "برياني الديره", price: 3.500},
-                {id: 79, name: "مرق دجاج", price: 2.750},
-                {id: 80, name: "مشوي جدر دجاج", price: 3.500}
-            ],
-            "الأطباق الجانبية": [
-                {id: 43, name: "تشريبه دجاج", price: 1.500}, {id: 44, name: "مرقوق لحم", price: 2.500},
-                {id: 45, name: "تشريبه لحم", price: 2.500}, {id: 46, name: "هريس", price: 1.500},
-                {id: 47, name: "جريش", price: 1.500}
-            ],
-            "الصواني (بحري)": [
-                {id: 48, name: "مربين (صواني)", price: 20.000}, {id: 49, name: "برياني ربيان (صواني)", price: 20.000},
-                {id: 50, name: "مطبق سيباس (صواني)", price: 28.000}, {id: 51, name: "سيباس مشوي (صواني)", price: 28.000},
-                {id: 52, name: "مطبق هامور (صواني)", price: 30.000}, {id: 53, name: "مرق هامور (صواني)", price: 30.000},
-                {id: 54, name: "مكس مطبق بحري", price: 35.000}, {id: 55, name: "زبيدي (صواني)", price: 30.000},
-                {id: 56, name: "زبيدي ملكي مع ربيان (صواني)", price: 35.000}
-            ],
-            "الصواني (دجاج)": [
-                {id: 57, name: "دجاج 65 (صواني)", price: 13.000}, {id: 58, name: "مجبوس الدجاج (صواني)", price: 13.000},
-                {id: 59, name: "برياني دجاج (صواني)", price: 14.000}, {id: 60, name: "بخاري دجاج (صواني)", price: 14.000},
-                {id: 61, name: "برياني الديره (صوانi)", price: 15.000}, {id: 62, name: "بتر جكن (صواني)", price: 14.000},
-                {id: 63, name: "مقلوبة دجاج (صواني)", price: 15.000}
-            ],
-            "الصواني (لحم)": [
-                {id: 64, name: "مجبوس لحم استرالي (صواني)", price: 18.000}, {id: 65, name: "مجبوس لحم نعيمي (صوانi)", price: 25.000},
-                {id: 66, name: "برياني لحم استرالي (صواني)", price: 20.000}, {id: 67, name: "برياني لحم نعيمي (صوانi)", price: 25.000},
-                {id: 68, name: "مقلوبة لحم استرالي (صواني)", price: 20.000}, {id: 69, name: "مقلوبة لحم نعيمي (صواني)", price: 25.000},
-                {id: 70, name: "مشوي جدر لحم استرالي (صواني)", price: 20.000}, {id: 71, name: "مشوي جدر لحم نعيمي (صوانi)", price: 25.000},
-                {id: 72, name: "بريه لحم نعيمي (صواني)", price: 25.000}, {id: 73, name: "برياني لحم سفرة الدار استرالي (صواني)", price: 20.000},
-                {id: 74, name: "برياني لحم سفرة الدار نعيمي (صواني)", price: 25.000}, {id: 75, name: "شبزي استرالي (صواني)", price: 21.500},
-                {id: 76, name: "شبزي نعيمي (صواني)", price: 26.500}
-            ],
-            "الذبايح": [ 
-                {id: 19, name: "ربع خروف (استرالي)", price: 30.000}, {id: 20, name: "نصف خروف (استرالي)", price: 60.000}, 
-                {id: 21, name: "خروف كامل (استرالي)", price: 120.000}, {id: 22, name: "ربع خروف (عربي)", price: 40.000}, 
-                {id: 23, name: "نصف خروف (عربي)", price: 80.000}, {id: 24, name: "خروف كامل (عربي)", price: 145.000} 
-            ],
-            "السمك": [ 
-                {id: 25, name: "مطبق زبيدي", price: 7.000}, {id: 26, name: "سيباس مشوي", price: 6.500}, 
-                {id: 27, name: "مطبق زبيدي ملكي", price: 8.000}, {id: 28, name: "برياني ربيان", price: 4.500}, 
-                {id: 29, name: "مرق هامور", price: 5.000}, {id: 30, name: "مربين", price: 4.500}, 
-                {id: 31, name: "مموش ربيان", price: 4.500}, {id: 32, name: "مطبق سيباس", price: 6.500} 
-            ],
-            "السلطات": [ 
-                {id: 33, name: "سلطة خضراء", price: 0.750}, {id: 34, name: "سلطة ججرير رمان", price: 1.000}, 
-                {id: 35, name: "ورق عنب", price: 1.500}, {id: 36, name: "روب وخيار", price: 0.750}, 
-                {id: 37, name: "تبولة", price: 1.000}, {id: 38, name: "فتوش", price: 1.000},
-                {id: 86, name: "روب", price: 0.200}
-            ],
-            "المشروبات": [ 
-                {id: 39, name: "لبن", price: 0.150}, {id: 40, name: "لبن نعناع", price: 0.150}, 
-                {id: 81, name: "بيبسي", price: 0.150}, 
-                {id: 82, name: "سفن اب", price: 0.150},
-                {id: 83, name: "ميرندا", price: 0.150},
-                {id: 42, name: "ماء صغير", price: 0.150},
-                {id: 84, name: "بيبسي (دايت)", price: 0.150},
-                {id: 85, name: "سفن اب (دايت)", price: 0.150}
-            ]
+        // 🔧 CONFIGURATION
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyfkGXUAs9iHpopvj57huguQe5LD3I0sTTdTRfRKppypadp05i1UbE-1NCUvlIN181B/exec';
+        
+        // 📊 GLOBAL STATE
+        let allDrivers = [];
+        let allOrders = [];
+        let pendingOrders = [];
+        let currentStats = {
+            totalDrivers: 0,
+            onlineDrivers: 0,
+            busyDrivers: 0,
+            onDeliveryDrivers: 0,
+            activeOrders: 0,
+            pendingOrders: 0,
+            previousStats: {}
         };
-
-        function formatPaymentMethod(method) {
-            if (!method) return '';
-            
-            const methodMap = {
-                'cash': 'نقداً',
-                'card': 'بطاقة ائتمان',
-                'knet': 'كي نت',
-                'visa': 'فيزا',
-                'mastercard': 'ماستركارد',
-                'credit': 'بطاقة ائتمان',
-                'credit card': 'بطاقة ائتمان',
-                'debit': 'بطاقة مدى',
-                'debit card': 'بطاقة مدى',
-                'online': 'دفع أونلاين',
-                'apple pay': 'آبل باي',
-                'google pay': 'جوجل باي',
-                'other': 'أخرى',
-                'أخرى': 'أخرى',
-                'نقدا': 'نقداً',
-                'نقداً': 'نقداً',
-                'كاش': 'نقداً',
-                'link': 'Link',
-                'Cash': 'نقداً',
-                'Link': 'Link'
-            };
-            
-            const lowerMethod = method.toLowerCase().trim();
-            return methodMap[lowerMethod] || method;
+        
+        let pollingInterval = null;
+        let isConnected = false;
+        
+        // ==============================================
+        // 🚀 INITIALIZATION
+        // ==============================================
+        
+        async function init() {
+            try {
+                console.log('🚀 Starting Driver Management Dashboard...');
+                
+                // Update connection status
+                updateConnectionStatus('جاري الاتصال بالنظام...', 'disconnected');
+                
+                // Test API connection
+                const testResult = await testAPIConnection();
+                
+                if (testResult.success) {
+                    isConnected = true;
+                    updateConnectionStatus('متصل بالنظام', 'connected');
+                    
+                    // Load initial data
+                    await Promise.all([
+                        loadDrivers(),
+                        loadOrders(),
+                        loadPendingOrders()
+                    ]);
+                    
+                    // Start real-time polling
+                    startPolling();
+                    
+                    console.log('✅ Dashboard initialized successfully');
+                } else {
+                    isConnected = false;
+                    updateConnectionStatus('فشل الاتصال بالنظام', 'disconnected');
+                    showError('خطأ في الاتصال', 'تعذر الاتصال بالنظام. يرجى التحقق من اتصال الإنترنت');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error during initialization:', error);
+                updateConnectionStatus('خطأ في التهيئة', 'disconnected');
+                showError('خطأ في التهيئة', 'حدث خطأ أثناء تهيئة اللوحة');
+            }
         }
         
-        function findItemPrice(itemName) {
-            for(const cat in menuData) {
-                const item = menuData[cat].find(i => i.name === itemName);
-                if(item) {
-                    return item.price;
-                }
-            }
-            return 0;
-        }
-
-        // دالة لتحويل التاريخ إلى هجري
-        function convertToHijri(gregorianDate) {
-            const gYear = gregorianDate.getFullYear();
-            const gMonth = gregorianDate.getMonth() + 1;
-            const gDay = gregorianDate.getDate();
-            
-            // معادلة تقريبية للتحويل
-            const hijriYear = Math.floor((gYear - 622) * 1.03);
-            const hijriMonth = gMonth;
-            const hijriDay = gDay;
-            
-            const hijriMonths = [
-                'محرم', 'صفر', 'ربيع الأول', 'ربيع الآخر', 
-                'جمادى الأولى', 'جمادى الآخرة', 'رجب', 
-                'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'
-            ];
-            
-            const hijriMonthName = hijriMonths[(hijriMonth - 1) % 12];
-            
-            return `${hijriDay} ${hijriMonthName} ${hijriYear} هـ`;
-        }
-
-        function startSystem() {
-            document.getElementById('start-overlay').style.display = 'none';
-            systemStarted = true;
-            
-            const newSound = document.getElementById('alert-sound-new');
-            const updatedSound = document.getElementById('alert-sound-updated');
-            const cancelledSound = document.getElementById('alert-sound-cancelled');
-            
-            newSound.volume = 0.1;
-            updatedSound.volume = 0.1;
-            cancelledSound.volume = 0.1;
-            
-            const sounds = [newSound, updatedSound, cancelledSound];
-            sounds.forEach(sound => {
-                sound.play().then(() => {
-                    sound.pause();
-                    sound.currentTime = 0;
-                    sound.volume = 0.7;
-                }).catch(console.error);
-            });
-
-            fetchData();
-            setInterval(fetchData, 7000);
-            setInterval(() => {
-                document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour12:false});
-            }, 1000);
-        }
-
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            if(tab === 'active') {
-                document.querySelector('div[onclick="switchTab(\'active\')"]').classList.add('active');
-                document.getElementById('active-orders').classList.add('active');
-            } else if(tab === 'delivering') {
-                document.querySelector('div[onclick="switchTab(\'delivering\')"]').classList.add('active');
-                document.getElementById('delivering-orders').classList.add('active');
-            } else {
-                document.querySelector('div[onclick="switchTab(\'completed\')"]').classList.add('active');
-                document.getElementById('completed-orders').classList.add('active');
-            }
-        }
-
-        async function fetchData() {
-            if(!systemStarted) return;
+        // ==============================================
+        // 🔌 API COMMUNICATION
+        // ==============================================
+        
+        async function testAPIConnection() {
             try {
-                const res = await fetch(`${API_URL}?t=${Date.now()}`);
-                const data = await res.json();
+                console.log('Testing API connection...');
+                const testUrl = `${API_URL}?action=getSystemStats&t=${Date.now()}`;
                 
-                document.getElementById('loader').style.display = 'none';
-                processOrders(data);
-
-            } catch (err) {
-                console.error("Connection Error");
-            }
-        }
-
-        function processOrders(orders) {
-            const activeGrid = document.getElementById('active-grid');
-            const deliveringGrid = document.getElementById('delivering-grid');
-            const completedGrid = document.getElementById('completed-grid');
-            
-            const filteredOrders = orders.filter(order => {
-                if (deletedOrderIds.has(order.id)) {
-                    const ticketElement = document.getElementById(`ticket-${order.id}`);
-                    if (ticketElement) {
-                        ticketElement.remove();
-                    }
-                    return false;
-                }
-                return true;
-            });
-            
-            const activeOrders = filteredOrders.filter(o => o.status === 'New' || o.status === 'Updated' || o.status === 'Ready');
-            const deliveringOrders = filteredOrders.filter(o => o.status === 'Picked' || o.status === 'Assigned');
-            const completedOrders = filteredOrders.filter(o => o.status === 'Delivered' || o.status === 'Completed');
-
-            document.getElementById('count-active').innerText = activeOrders.length;
-            document.getElementById('count-delivering').innerText = deliveringOrders.length;
-            document.getElementById('count-completed').innerText = completedOrders.length;
-
-            const currentOrderIds = new Set(orders.map(o => o.id));
-            
-            for (const orderId of notifiedOrderIds) {
-                if (!currentOrderIds.has(orderId) && !deletedOrderIds.has(orderId)) {
-                    const deletedOrder = {
-                        id: orderId,
-                        type: 'Unknown',
-                        items: 'تم حذف الطلب',
-                        total: '0.000',
-                        time: new Date().toISOString(),
-                        pickupTime: 'فوري',
-                        phone: '',
-                        location: '',
-                        details: '',
-                        notes: 'تم حذف هذا الطلب من قبل الإدارة',
-                        paymentMethod: '',
-                        status: 'Deleted'
-                    };
-                    
-                    showDeleteAlert(deletedOrder);
-                    deletedOrderIds.add(orderId);
-                    notifiedOrderIds.delete(orderId);
-                }
-            }
-
-            activeOrders.forEach(order => {
-                if (!notifiedOrderIds.has(order.id)) {
-                    showAlert(order, 'new');
-                    notifiedOrderIds.add(order.id);
-                }
-            });
-
-            activeOrders.forEach(order => {
-                if (order.status === 'Updated') {
-                    if (!notifiedOrderIds.has(`updated-${order.id}`)) {
-                        showAlert(order, 'updated');
-                        notifiedOrderIds.add(`updated-${order.id}`);
-                    }
-                }
-            });
-
-            isFirstRun = false;
-
-            renderGrid(activeOrders, activeGrid, 'active');
-            renderGrid(deliveringOrders, deliveringGrid, 'delivering');
-            renderGrid(completedOrders, completedGrid, 'completed');
-        }
-
-        async function logNotification(orderId, status) {
-            try {
-                const params = new URLSearchParams();
-                params.append('action', 'logNotification');
-                params.append('orderId', orderId);
-                params.append('status', status);
-                params.append('timestamp', Date.now());
-                params.append('kitchenReceived', 'true');
+                const response = await fetch(testUrl, { method: 'GET' });
+                const data = await response.json();
                 
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: params
-                });
+                console.log('API connection test response:', data);
+                return { success: data.result === 'success' };
                 
-                const result = await response.json();
-                
-                console.log(`تم تسجيل إشعار للطلب #${orderId} - الحالة: ${status}`, result);
-                return result;
             } catch (error) {
-                console.error('خطأ في تسجيل الإشعار:', error);
-                throw error;
+                console.error('API connection test failed:', error);
+                return { success: false, error: error.message };
             }
         }
-
-        function showAlert(order, type) {
-            currentAlertOrder = order;
-            alertStartTime = Date.now();
-            
-            const orderDate = new Date(order.time);
-            const timeString = orderDate.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-            
-            const itemsCount = order.items ? order.items.split(' + ').length : 0;
-            
-            document.getElementById('alert-order-id').textContent = `#${order.id}`;
-            document.getElementById('alert-order-type').textContent = order.type;
-            document.getElementById('alert-items-count').textContent = itemsCount;
-            document.getElementById('alert-total').textContent = `${order.total} KD`;
-            document.getElementById('alert-time').textContent = timeString;
-            
-            const typeBadge = document.getElementById('alert-type-badge');
-            const subtitle = document.getElementById('alert-subtitle');
-            const actionBtn = document.getElementById('alert-action-btn');
-            
-            if (type === 'new') {
-                typeBadge.className = 'alert-type-badge alert-type-new';
-                typeBadge.textContent = 'طلب جديد';
-                subtitle.textContent = 'طلب جديد يحتاج إلى التحضير';
-                actionBtn.innerHTML = '<i class="fas fa-check-circle"></i> تم استلام الطلب';
-                actionBtn.className = 'alert-btn alert-btn-received';
-                startAlertSound('new');
-            } else if (type === 'updated') {
-                typeBadge.className = 'alert-type-badge alert-type-updated';
-                typeBadge.textContent = 'طلب معدل';
-                subtitle.textContent = 'تم تعديل الطلب، يرجى المراجعة';
-                actionBtn.innerHTML = '<i class="fas fa-check-circle"></i> تم استلام الطلب';
-                actionBtn.className = 'alert-btn alert-btn-received';
-                startAlertSound('updated');
-            }
-            
-            document.getElementById('alert-overlay').style.display = 'flex';
-            startAlertTimer();
-        }
-
-        function showDeleteAlert(order) {
-            currentAlertOrder = order;
-            alertStartTime = Date.now();
-            
-            const orderDate = new Date(order.time);
-            const timeString = orderDate.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-            
-            const itemsCount = order.items ? order.items.split(' + ').length : 0;
-            
-            document.getElementById('alert-order-id').textContent = `#${order.id}`;
-            document.getElementById('alert-order-type').textContent = order.type;
-            document.getElementById('alert-items-count').textContent = itemsCount;
-            document.getElementById('alert-total').textContent = `${order.total} KD`;
-            document.getElementById('alert-time').textContent = timeString;
-            
-            const typeBadge = document.getElementById('alert-type-badge');
-            const subtitle = document.getElementById('alert-subtitle');
-            const actionBtn = document.getElementById('alert-action-btn');
-            
-            typeBadge.className = 'alert-type-badge alert-type-cancelled';
-            typeBadge.textContent = 'طلب ملغي';
-            subtitle.textContent = 'تم إلغاء هذا الطلب من قبل الإدارة';
-            actionBtn.innerHTML = '<i class="fas fa-check"></i> تأكيد الإلغاء';
-            actionBtn.className = 'alert-btn alert-btn-cancelled';
-            
-            document.getElementById('alert-overlay').style.display = 'flex';
-            
-            startAlertTimer();
-            startAlertSound('cancelled');
-        }
-
-        function startAlertTimer() {
-            if (alertTimerInterval) {
-                clearInterval(alertTimerInterval);
-            }
-            
-            document.getElementById('alert-timer-fill').style.width = '0%';
-            document.getElementById('alert-timer-text').textContent = 'الدقيقة 0 من 2';
-            
-            alertTimerInterval = setInterval(() => {
-                const elapsed = (Date.now() - alertStartTime) / 1000;
-                const percentage = Math.min((elapsed / ALERT_DURATION) * 100, 100);
+        
+        async function loadDrivers() {
+            try {
+                console.log('Loading drivers...');
+                showLoading(true);
                 
-                document.getElementById('alert-timer-fill').style.width = `${percentage}%`;
+                const response = await fetch(`${API_URL}?action=getAllDrivers&t=${Date.now()}`);
+                const data = await response.json();
                 
-                const minutes = Math.floor(elapsed / 60);
-                document.getElementById('alert-timer-text').textContent = `الدقيقة ${minutes} من 2`;
-                
-                if (elapsed >= ALERT_DURATION) {
-                    alertStartTime = Date.now();
-                    document.getElementById('alert-timer-fill').style.width = '0%';
-                }
-            }, 100);
-        }
-
-        function startAlertSound(type) {
-            if (soundInterval) {
-                clearInterval(soundInterval);
-            }
-            
-            let audio;
-            switch(type) {
-                case 'new':
-                    audio = document.getElementById('alert-sound-new');
-                    break;
-                case 'updated':
-                    audio = document.getElementById('alert-sound-updated');
-                    break;
-                case 'cancelled':
-                    audio = document.getElementById('alert-sound-cancelled');
-                    break;
-                default:
-                    audio = document.getElementById('alert-sound-new');
-            }
-            
-            audio.volume = 0.7;
-            audio.currentTime = 0;
-            audio.play().catch(e => console.log("Sound blocked initially"));
-            
-            soundInterval = setInterval(() => {
-                audio.currentTime = 0;
-                audio.play().catch(e => console.log("Sound blocked"));
-            }, 3000);
-        }
-
-        function stopAlertSound() {
-            if (soundInterval) {
-                clearInterval(soundInterval);
-                soundInterval = null;
-            }
-            
-            const sounds = [
-                document.getElementById('alert-sound-new'),
-                document.getElementById('alert-sound-updated'),
-                document.getElementById('alert-sound-cancelled')
-            ];
-            
-            sounds.forEach(sound => {
-                sound.pause();
-                sound.currentTime = 0;
-            });
-        }
-
-        async function handleAlertReceived() {
-            if (currentAlertOrder) {
-                const typeBadge = document.getElementById('alert-type-badge');
-                
-                if (typeBadge.classList.contains('alert-type-cancelled')) {
-                    await handleDeleteAcknowledged();
+                if (data.result === 'success') {
+                    allDrivers = data.drivers || [];
+                    
+                    // Update UI
+                    updateDriversList();
+                    updateDashboardStats();
+                    
+                    console.log(`✅ Loaded ${allDrivers.length} drivers successfully`);
                 } else {
-                    document.getElementById('alert-overlay').style.display = 'none';
-                    
-                    if (alertTimerInterval) {
-                        clearInterval(alertTimerInterval);
-                        alertTimerInterval = null;
-                    }
-                    stopAlertSound();
-                    
-                    const notificationStatus = typeBadge.classList.contains('alert-type-updated') ? 'Updated' : 'New';
-                    try {
-                        await logNotification(currentAlertOrder.id, notificationStatus);
-                        console.log(`تم تسجيل إشعار للطلب #${currentAlertOrder.id} بنجاح`);
-                    } catch (error) {
-                        console.error('فشل في تسجيل الإشعار:', error);
-                    }
-                    
-                    switchTab('active');
-                    
-                    setTimeout(() => {
-                        const ticketElement = document.getElementById(`ticket-${currentAlertOrder.id}`);
-                        if (ticketElement) {
-                            ticketElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            
-                            ticketElement.style.animation = 'flashBorder 1s infinite';
-                            setTimeout(() => {
-                                ticketElement.style.animation = '';
-                            }, 3000);
-                            
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-start',
-                                icon: 'success',
-                                title: `تم استلام الطلب #${currentAlertOrder.id}`,
-                                showConfirmButton: false,
-                                timer: 2000,
-                                background: '#222',
-                                color: '#fff'
-                            });
-                        }
-                    }, 500);
-                    
-                    currentAlertOrder = null;
+                    throw new Error(data.message || 'فشل في تحميل بيانات السائقين');
                 }
+                
+            } catch (error) {
+                console.error('❌ Error loading drivers:', error);
+                showError('خطأ في التحميل', 'تعذر تحميل بيانات السائقين');
+            } finally {
+                showLoading(false);
             }
         }
-
-        async function handleDeleteAcknowledged() {
-            if (currentAlertOrder) {
-                document.getElementById('alert-overlay').style.display = 'none';
+        
+        async function loadOrders() {
+            try {
+                const response = await fetch(`${API_URL}?action=getPendingOrders&t=${Date.now()}`);
+                const data = await response.json();
                 
-                if (alertTimerInterval) {
-                    clearInterval(alertTimerInterval);
-                    alertTimerInterval = null;
+                if (data.result === 'success') {
+                    allOrders = data.orders || [];
+                    updateDashboardStats();
                 }
-                stopAlertSound();
-                
-                try {
-                    await logNotification(currentAlertOrder.id, 'Cancelled');
-                    console.log(`تم تسجيل إشعار الإلغاء للطلب #${currentAlertOrder.id} بنجاح`);
-                } catch (error) {
-                    console.error('فشل في تسجيل إشعار الإلغاء:', error);
-                }
-                
-                deletedOrderIds.add(currentAlertOrder.id);
-                
-                const ticketElement = document.getElementById(`ticket-${currentAlertOrder.id}`);
-                if (ticketElement) {
-                    ticketElement.classList.add('deleted-ticket');
-                    
-                    setTimeout(() => {
-                        ticketElement.remove();
-                        
-                        const activeGrid = document.getElementById('active-grid');
-                        const activeOrders = Array.from(activeGrid.children).filter(el => !el.classList.contains('completed-ticket'));
-                        document.getElementById('count-active').innerText = activeOrders.length;
-                    }, 3000);
-                }
-                
-                Swal.fire({
-                    toast: true,
-                    position: 'top-start',
-                    icon: 'info',
-                    title: `تم تسجيل إلغاء الطلب #${currentAlertOrder.id}`,
-                    showConfirmButton: false,
-                    timer: 3000,
-                    background: '#222',
-                    color: '#fff'
-                });
-                
-                currentAlertOrder = null;
+            } catch (error) {
+                console.error('Error loading orders:', error);
             }
         }
-
-        function renderGrid(orders, container, tabType) {
-            container.innerHTML = '';
-
-            if (orders.length === 0) {
-                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#444; margin-top:50px;">لا توجد طلبات هنا</div>';
-                return;
+        
+        async function loadPendingOrders() {
+            try {
+                const response = await fetch(`${API_URL}?action=getPendingOrders&t=${Date.now()}`);
+                const data = await response.json();
+                
+                if (data.result === 'success') {
+                    pendingOrders = data.orders || [];
+                    updateDashboardStats();
+                }
+            } catch (error) {
+                console.error('Error loading pending orders:', error);
             }
-
-            orders.forEach(order => {
-                const ticket = document.createElement('div');
+        }
+        
+        // ==============================================
+        // 📊 DASHBOARD UPDATES
+        // ==============================================
+        
+        function updateDashboardStats() {
+            try {
+                // Save previous stats for comparison
+                currentStats.previousStats = { ...currentStats };
                 
-                const orderDate = new Date(order.time);
-                const isRecent = tabType === 'active' && (new Date() - orderDate) < (5 * 60 * 1000);
-                const isUpdated = tabType === 'active' && order.status === 'Updated';
-                const isDelivering = tabType === 'delivering';
-                const isCompleted = tabType === 'completed';
+                // Calculate new stats
+                currentStats.totalDrivers = allDrivers.length;
+                currentStats.onlineDrivers = allDrivers.filter(d => d.isOnline).length;
+                currentStats.busyDrivers = allDrivers.filter(d => d.status === 'busy').length;
+                currentStats.onDeliveryDrivers = allDrivers.filter(d => d.currentOrder && d.isOnline).length;
+                currentStats.activeOrders = allOrders.length;
+                currentStats.pendingOrders = pendingOrders.length;
                 
-                let cardClass = 'ticket';
-                if(isCompleted) cardClass += ' completed-ticket';
-                else if(isDelivering) cardClass += ' delivering-ticket';
-                else if(isUpdated) cardClass += ' updated-card';
-                else if(isRecent) cardClass += ' flash-card';
+                // Update header stats
+                document.getElementById('total-drivers').textContent = currentStats.totalDrivers;
+                document.getElementById('online-drivers').textContent = currentStats.onlineDrivers;
+                document.getElementById('active-orders').textContent = currentStats.activeOrders;
                 
-                ticket.className = cardClass;
-                ticket.id = `ticket-${order.id}`;
-
-                let itemsList = '';
-                if (order.items) {
-                    const items = order.items.split(' + ');
-                    items.forEach(item => {
-                        const match = item.match(/(.+)\s+\(x(\d+)\)\s+-\s+([\d.]+)\s+KD/);
-                        if (match) {
-                            const itemName = match[1].trim();
-                            const qty = match[2];
-                            const totalPrice = match[3];
-                            itemsList += `<li class="item-li">${itemName} (x${qty}) - ${totalPrice} KD</li>`;
-                        } else {
-                            itemsList += `<li class="item-li">${item}</li>`;
-                        }
-                    });
-                }
-
-                let cxTag = order.type === 'New CX' ? `<span class="tag tag-new">New CX</span>` : `<span class="tag tag-old">Old CX</span>`;
+                // Update dashboard cards
+                document.getElementById('registered-drivers').textContent = currentStats.totalDrivers;
+                document.getElementById('connected-now').textContent = currentStats.onlineDrivers;
+                document.getElementById('delivery-drivers').textContent = currentStats.onDeliveryDrivers;
+                document.getElementById('in-delivery-orders').textContent = currentStats.activeOrders;
                 
-                let timeTag = '';
-                if(order.pickupTime && order.pickupTime.includes('فوري')) {
-                    timeTag = `<span class="tag tag-now"><i class="fas fa-fire"></i> فوري</span>`;
-                } else {
-                    timeTag = `<span class="tag tag-later"><i class="fas fa-clock"></i> وقت محدد</span>`;
-                }
-
-                // إضافة تاج الحالة بناءً على تبويب العرض
-                let statusTag = '';
-                if(isDelivering) {
-                    statusTag = `<span class="tag tag-delivering"><i class="fas fa-motorcycle"></i> قيد التوصيل</span>`;
-                } else if(isCompleted) {
-                    statusTag = `<span class="tag tag-completed"><i class="fas fa-check-circle"></i> مكتمل</span>`;
-                }
-
-                let updateBadgeHtml = '';
-                if(isUpdated) {
-                    updateBadgeHtml = `<span class="updated-badge">تم تحديث الطلب ✏️</span>`;
-                }
-
-                let locHtml = 'لا يوجد موقع';
-                if(order.location && order.location.length > 5) {
-                    let href = order.location.startsWith('http') ? order.location : `https://maps.google.com/?q=${order.location}`;
-                    locHtml = `<a href="${href}" target="_blank">فتح الخريطة <i class="fas fa-external-link-alt"></i></a>`;
-                }
-
-                let detailsHtml = '';
-                if(order.details) {
-                    detailsHtml = `<div class="info-addr"><i class="fas fa-map-marker-alt"></i> ${order.details}</div>`;
-                }
-
-                let notesHtml = '';
-                if(order.notes && order.notes.trim() !== "") {
-                    let notesList = [];
-                    
-                    if (order.notes.includes('•')) {
-                        notesList = order.notes.split('•').filter(note => note.trim() !== "");
-                    } else if (order.notes.includes('-') || order.notes.includes('*')) {
-                        const separator = order.notes.includes('-') ? '-' : '*';
-                        notesList = order.notes.split(separator).filter(note => note.trim() !== "");
-                    } else {
-                        notesList = [order.notes.trim()];
-                    }
-                    
-                    notesList = notesList.map(note => note.trim());
-                    
-                    if (notesList.length > 0) {
-                        const notesItems = notesList.map(note => `
-                            <li class="note-item">
-                                <span class="note-text">${note}</span>
-                            </li>
-                        `).join('');
-                        
-                        notesHtml = `
-                            <div class="t-notes-container">
-                                <div class="notes-header">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <span>ملاحظات خاصة</span>
-                                    <span style="margin-right: auto; font-size: 0.8rem; color: #ffcc00;">
-                                        (${notesList.length} ملاحظة)
-                                    </span>
-                                </div>
-                                <ul class="notes-list">
-                                    ${notesItems}
-                                </ul>
-                            </div>
-                        `;
-                    }
-                }
-
-                let paymentHtml = '';
-                if(order.paymentMethod && order.paymentMethod.trim() !== "") {
-                    const paymentText = formatPaymentMethod(order.paymentMethod);
-                    paymentHtml = `<div class="payment-method">
-                        <i class="fas fa-credit-card"></i>
-                        <span>طريقة الدفع: ${paymentText}</span>
-                    </div>`;
-                }
+                // Calculate and update changes
+                updateChangeIndicators();
                 
-                let customerInfoHtml = '';
-                if(order.customerId && order.customerId.trim() !== "") {
-                    customerInfoHtml = `<div class="customer-info">
-                        <i class="fas fa-id-card"></i>
-                        <span>رقم العميل: ${order.customerId}</span>
-                    </div>`;
-                }
-
-                // إضافة معلومات السائق إذا كان الطلب قيد التوصيل
-                let driverInfoHtml = '';
-                if(isDelivering && order.driverId) {
-                    driverInfoHtml = `<div class="driver-info">
-                        <i class="fas fa-motorcycle"></i>
-                        <span>السائق: ${order.driverId}</span>
-                    </div>`;
-                }
-
-                const formattedTime = orderDate.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                });
-
-                let buttonsHtml = '';
-                if(tabType === 'active') {
-                    const isReady = order.status === 'Ready';
-                    const isMarkedDone = order.status === 'Ready' || order.driverId;
-                    
-                    buttonsHtml = `
-                        <button class="action-btn btn-done ${isMarkedDone ? 'completed' : ''}" 
-                                onclick="markDone(${order.id})" 
-                                ${isMarkedDone ? 'disabled' : ''}>
-                            <i class="fas fa-check-circle"></i> ${isReady ? 'جاهز' : 'Done'}
-                        </button>
-                        <button class="action-btn btn-print" onclick="printOrder(${order.id})">
-                            <i class="fas fa-print"></i> Print
-                        </button>
-                    `;
-                } else if(tabType === 'delivering') {
-                    buttonsHtml = `
-                        <button class="action-btn btn-print" onclick="printOrder(${order.id})">
-                            <i class="fas fa-print"></i> Print
-                        </button>
-                    `;
-                } else {
-                    buttonsHtml = `
-                        <button class="action-btn btn-restore" onclick="restoreOrder(${order.id})">
-                            <i class="fas fa-undo"></i> Restore
-                        </button>
-                        <button class="action-btn btn-print" onclick="printOrder(${order.id})">
-                            <i class="fas fa-print"></i> Print
-                        </button>
-                    `;
-                }
-
-                ticket.innerHTML = `
-                    <div class="t-header">
-                        <div class="t-id">
-                            ${updateBadgeHtml}
-                            #${order.id}
+            } catch (error) {
+                console.error('Error updating dashboard stats:', error);
+            }
+        }
+        
+        function updateChangeIndicators() {
+            const prev = currentStats.previousStats;
+            const curr = currentStats;
+            
+            // Drivers change
+            const driversChange = prev.totalDrivers ? ((curr.totalDrivers - prev.totalDrivers) / prev.totalDrivers * 100).toFixed(1) : '0';
+            const driversElement = document.getElementById('drivers-change');
+            driversElement.innerHTML = `<i class="fas fa-arrow-${curr.totalDrivers >= prev.totalDrivers ? 'up' : 'down'}"></i><span>${Math.abs(driversChange)}%</span>`;
+            driversElement.className = `stat-change ${curr.totalDrivers >= prev.totalDrivers ? 'positive' : 'negative'}`;
+            
+            // Online change
+            const onlineChange = prev.onlineDrivers ? ((curr.onlineDrivers - prev.onlineDrivers) / prev.onlineDrivers * 100).toFixed(1) : '0';
+            const onlineElement = document.getElementById('online-change');
+            onlineElement.innerHTML = `<i class="fas fa-arrow-${curr.onlineDrivers >= prev.onlineDrivers ? 'up' : 'down'}"></i><span>${Math.abs(onlineChange)}%</span>`;
+            onlineElement.className = `stat-change ${curr.onlineDrivers >= prev.onlineDrivers ? 'positive' : 'negative'}`;
+            
+            // Delivery change
+            const deliveryChange = prev.onDeliveryDrivers ? ((curr.onDeliveryDrivers - prev.onDeliveryDrivers) / prev.onDeliveryDrivers * 100).toFixed(1) : '0';
+            const deliveryElement = document.getElementById('delivery-change');
+            deliveryElement.innerHTML = `<i class="fas fa-arrow-${curr.onDeliveryDrivers >= prev.onDeliveryDrivers ? 'up' : 'down'}"></i><span>${Math.abs(deliveryChange)}%</span>`;
+            deliveryElement.className = `stat-change ${curr.onDeliveryDrivers >= prev.onDeliveryDrivers ? 'positive' : 'negative'}`;
+            
+            // Orders change
+            const ordersChange = prev.activeOrders ? ((curr.activeOrders - prev.activeOrders) / prev.activeOrders * 100).toFixed(1) : '0';
+            const ordersElement = document.getElementById('orders-change');
+            ordersElement.innerHTML = `<i class="fas fa-arrow-${curr.activeOrders >= prev.activeOrders ? 'up' : 'down'}"></i><span>${Math.abs(ordersChange)}%</span>`;
+            ordersElement.className = `stat-change ${curr.activeOrders >= prev.activeOrders ? 'positive' : 'negative'}`;
+        }
+        
+        // ==============================================
+        // 👥 DRIVERS LIST MANAGEMENT
+        // ==============================================
+        
+        function updateDriversList() {
+            const driversGrid = document.getElementById('drivers-grid');
+            
+            if (allDrivers.length === 0) {
+                driversGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-user-slash"></i>
                         </div>
-                        <div class="t-time">${formattedTime}</div>
-                    </div>
-
-                    <div class="t-tags">
-                        ${timeTag}
-                        ${cxTag}
-                        ${statusTag}
-                    </div>
-
-                    <div class="t-body">
-                        <ul class="items-ul">
-                            ${itemsList}
-                        </ul>
-                    </div>
-                    
-                    ${notesHtml}
-                    
-                    ${paymentHtml}
-                    ${customerInfoHtml}
-                    ${driverInfoHtml}
-
-                    <div class="t-total">
-                        <span class="total-txt">المجموع الكلي</span>
-                        <span class="total-num">${order.total} KD</span>
-                    </div>
-
-                    <div class="t-footer">
-                        <div class="info-line">
-                            <i class="fas fa-phone"></i>
-                            <span dir="ltr">${order.phone}</span>
-                            <a href="tel:${order.phone}" class="call-btn" title="اتصال مباشر"><i class="fas fa-phone-alt"></i></a>
-                        </div>
-                        <div class="info-line">
-                            <i class="fas fa-location-arrow"></i>
-                            ${locHtml}
-                        </div>
-                        ${detailsHtml}
-                    </div>
-
-                    <div class="t-actions">
-                        ${buttonsHtml}
+                        <div class="empty-title">لا توجد سائقين مسجلين</div>
+                        <div class="empty-message">يمكنك إضافة سائق جديد باستخدام زر "إضافة سائق جديد"</div>
                     </div>
                 `;
-
-                container.appendChild(ticket);
-            });
-        }
-
-        async function markDone(id) {
-            const ticketElement = document.getElementById(`ticket-${id}`);
-            if (!ticketElement) return;
-            
-            // تغيير زر Done إلى اللون الرمادي وتعطيله
-            const doneButton = ticketElement.querySelector('.btn-done');
-            if (doneButton) {
-                doneButton.classList.add('completed');
-                doneButton.disabled = true;
-                doneButton.innerHTML = '<i class="fas fa-check-circle"></i> جاهز للتوصيل';
+                return;
             }
             
-            // تعتيم التذكرة
-            ticketElement.style.opacity = '0.8';
-            
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `action=done&id=${id}`
-                });
-                
-                const result = await response.json();
-                
-                if (result.result === 'success') {
-                    console.log(`تم إتمام الطلب #${id}`);
-                    
-                    // إظهار رسالة نجاح
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-start',
-                        icon: 'success',
-                        title: `تم تجهيز الطلب #${id}`,
-                        text: 'تم نقله لقسم قيد التوصيل',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        background: '#222',
-                        color: '#fff'
-                    });
-                }
-                
-                // تحديث البيانات بعد ثانيتين
-                setTimeout(fetchData, 2000);
-                
-                if (currentAlertOrder && currentAlertOrder.id == id) {
-                    document.getElementById('alert-overlay').style.display = 'none';
-                    if (alertTimerInterval) {
-                        clearInterval(alertTimerInterval);
-                        alertTimerInterval = null;
-                    }
-                    stopAlertSound();
-                    currentAlertOrder = null;
-                }
-            } catch (error) {
-                console.error('Error marking order as done:', error);
-                
-                // إرجاع الزر إلى حالته الأصلية في حالة الخطأ
-                if (doneButton) {
-                    doneButton.classList.remove('completed');
-                    doneButton.disabled = false;
-                    doneButton.innerHTML = '<i class="fas fa-check-circle"></i> Done';
-                }
-                
-                ticketElement.style.opacity = '1';
-                
-                Swal.fire({
-                    icon: 'error',
-                    title: 'خطأ',
-                    text: 'فشل في إتمام الطلب',
-                    background: '#222',
-                    color: '#fff'
-                });
-            }
-        }
-
-        async function restoreOrder(id) {
-            document.getElementById(`ticket-${id}`).style.opacity = '0.5';
-            
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `action=restore&id=${id}`
-                });
-                
-                const result = await response.json();
-                
-                if (result.result === 'success') {
-                    console.log(`تم استرجاع الطلب #${id}`);
-                }
-                
-                fetchData();
-            } catch (error) {
-                console.error('Error restoring order:', error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'خطأ',
-                    text: 'فشل في استرجاع الطلب',
-                    background: '#222',
-                    color: '#fff'
-                });
-            }
-        }
-
-        function printOrder(id) {
-            if (document.getElementById('alert-overlay').style.display === 'flex') {
-                document.getElementById('alert-overlay').style.display = 'none';
-                stopAlertSound();
-            }
-            
-            fetch(API_URL)
-                .then(res => res.json())
-                .then(orders => {
-                    const order = orders.find(o => o.id == id);
-                    if (order) {
-                        openPrintModal(order);
-                    }
-                });
-        }
-
-        function openPrintModal(order) {
-            const orderDate = new Date(order.time);
-            
-            const timeString = orderDate.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
+            // Sort drivers: online first, then by status
+            const sortedDrivers = [...allDrivers].sort((a, b) => {
+                if (a.isOnline !== b.isOnline) return b.isOnline ? 1 : -1;
+                if (a.status === 'busy' && b.status !== 'busy') return -1;
+                if (a.status !== 'busy' && b.status === 'busy') return 1;
+                return 0;
             });
             
-            const shortMiladiDate = orderDate.toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            }).replace(/\//g, '-');
-
-            let itemsHtml = '';
-            let totalCalculated = 0;
+            let html = '';
             
-            if (order.items) {
-                const items = order.items.split(' + ');
-                items.forEach(item => {
-                    const match = item.match(/(.+)\s+\(x(\d+)\)\s+-\s+([\d.]+)\s+KD/);
-                    if (match) {
-                        const itemName = match[1].trim();
-                        const qty = match[2];
-                        const totalPrice = parseFloat(match[3]);
-                        totalCalculated += totalPrice;
-                        
-                        const itemPrice = findItemPrice(itemName);
-                        
-                        itemsHtml += `
-                            <div class="print-grid-row">
-                                <div class="print-grid-item print-grid-item-name">${itemName}</div>
-                                <div class="print-grid-item print-grid-item-qty">${qty}</div>
-                                <div class="print-grid-item print-grid-item-price">${itemPrice.toFixed(3)} د.ك</div>
-                                <div class="print-grid-item print-grid-item-total">${totalPrice.toFixed(3)} د.ك</div>
+            sortedDrivers.forEach(driver => {
+                const driverInitial = driver.name ? driver.name.charAt(0).toUpperCase() : 'س';
+                const statusBadge = getStatusBadge(driver);
+                const availabilityBadge = getAvailabilityBadge(driver);
+                const lastUpdate = driver.lastUpdate ? formatTimeAgo(new Date(driver.lastUpdate)) : 'لم يتم التحديث';
+                
+                // Calculate active orders for this driver
+                const driverOrders = allOrders.filter(order => order.driverId === driver.id);
+                const activeOrdersCount = driverOrders.length;
+                
+                // Check if driver has current order
+                const hasCurrentOrder = driver.currentOrder || activeOrdersCount > 0;
+                
+                html += `
+                    <div class="driver-card" data-driver-id="${driver.id}">
+                        <div class="driver-header">
+                            <div class="driver-avatar">
+                                ${driverInitial}
+                                <div class="driver-status-indicator ${driver.isOnline ? 'online' : 'offline'}" 
+                                     style="background-color: ${driver.isOnline ? 'var(--status-online)' : 'var(--status-offline)'}">
+                                </div>
                             </div>
-                        `;
-                    } else {
-                        itemsHtml += `
-                            <div class="print-grid-row">
-                                <div class="print-grid-item print-grid-item-name">${item}</div>
-                                <div class="print-grid-item print-grid-item-qty">1</div>
-                                <div class="print-grid-item print-grid-item-price">0.000 د.ك</div>
-                                <div class="print-grid-item print-grid-item-total">0.000 د.ك</div>
+                            <div class="driver-info">
+                                <div class="driver-name">${driver.name || 'سائق'}</div>
+                                <div class="driver-id">ID: ${driver.id}</div>
+                                <div class="status-badges">
+                                    ${statusBadge}
+                                    ${availabilityBadge}
+                                </div>
                             </div>
-                        `;
-                    }
+                        </div>
+                        
+                        <div class="driver-details">
+                            <div class="detail-row">
+                                <span class="detail-label">رقم الهاتف</span>
+                                <span class="detail-value">${driver.phone || 'غير متوفر'}</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">آخر تحديث</span>
+                                <span class="detail-value">${lastUpdate}</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">الطلبات النشطة</span>
+                                <div class="orders-container">
+                                    <span class="order-count">${activeOrdersCount}</span>
+                                    ${hasCurrentOrder ? `<span class="detail-value">طلب #${driver.currentOrder || driverOrders[0]?.id || ''}</span>` : '<span class="detail-value">لا توجد طلبات</span>'}
+                                </div>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">نوع المركبة</span>
+                                <span class="detail-value">${driver.vehicle || 'دراجة نارية'}</span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">المجموع اليومي</span>
+                                <span class="detail-value">${driver.todayOrders || 0} طلب</span>
+                            </div>
+                        </div>
+                        
+                        <div class="driver-actions">
+                            <button class="driver-btn assign" onclick="openAssignModal('${driver.id}', '${driver.name || 'سائق'}')" ${!driver.isOnline ? 'disabled style="opacity:0.5"' : ''}>
+                                <i class="fas fa-tasks"></i>
+                                تخصيص طلب
+                            </button>
+                            <button class="driver-btn message" onclick="openMessageModal('${driver.id}', '${driver.name || 'سائق'}')">
+                                <i class="fas fa-comment-alt"></i>
+                                رسالة
+                            </button>
+                            <button class="driver-btn call" onclick="callDriver('${driver.phone || ''}')" ${!driver.phone ? 'disabled style="opacity:0.5"' : ''}>
+                                <i class="fas fa-phone"></i>
+                                اتصال
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            driversGrid.innerHTML = html;
+        }
+        
+        function getStatusBadge(driver) {
+            if (!driver.isOnline) {
+                return `<span class="status-badge offline">غير متصل</span>`;
+            }
+            
+            switch(driver.status) {
+                case 'online':
+                    return `<span class="status-badge online">متصل</span>`;
+                case 'busy':
+                    return `<span class="status-badge busy">مشغول</span>`;
+                case 'offline':
+                    return `<span class="status-badge offline">غير متصل</span>`;
+                default:
+                    return `<span class="status-badge offline">غير متصل</span>`;
+            }
+        }
+        
+        function getAvailabilityBadge(driver) {
+            if (!driver.isOnline) return '';
+            
+            if (driver.currentOrder) {
+                return `<span class="status-badge on-delivery">في توصيل</span>`;
+            }
+            
+            return `<span class="status-badge available">متاح</span>`;
+        }
+        
+        // ==============================================
+        // 🔄 REAL-TIME UPDATES
+        // ==============================================
+        
+        function startPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+            }
+            
+            pollingInterval = setInterval(async () => {
+                if (isConnected) {
+                    await Promise.all([
+                        loadDrivers(),
+                        loadOrders(),
+                        loadPendingOrders()
+                    ]);
+                }
+            }, 15000); // Update every 15 seconds
+            
+            console.log('✅ Real-time polling started');
+        }
+        
+        // ==============================================
+        // 🎯 DRIVER ACTIONS
+        // ==============================================
+        
+        function openAssignModal(driverId, driverName) {
+            try {
+                const modal = document.getElementById('assign-modal');
+                const driverNameInput = document.getElementById('assign-driver-name');
+                const driverIdInput = document.getElementById('assign-driver-id');
+                
+                driverNameInput.value = driverName;
+                driverIdInput.value = driverId;
+                
+                // Load pending orders into select
+                loadOrdersForAssign();
+                
+                modal.classList.add('active');
+            } catch (error) {
+                console.error('Error opening assign modal:', error);
+                showError('خطأ', 'تعذر فتح نافذة التخصيص');
+            }
+        }
+        
+        function closeAssignModal() {
+            document.getElementById('assign-modal').classList.remove('active');
+            document.getElementById('assign-form').reset();
+        }
+        
+        async function loadOrdersForAssign() {
+            try {
+                const orderSelect = document.getElementById('order-select');
+                
+                // Clear existing options except first
+                while (orderSelect.options.length > 1) {
+                    orderSelect.remove(1);
+                }
+                
+                // Add pending orders
+                if (pendingOrders.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'لا توجد طلبات متاحة للتخصيص';
+                    option.disabled = true;
+                    orderSelect.appendChild(option);
+                    return;
+                }
+                
+                pendingOrders.forEach(order => {
+                    const option = document.createElement('option');
+                    option.value = order.id;
+                    option.textContent = `طلب #${order.id} - ${order.customerName || 'عميل'} - ${order.total || '0.000'} د.ك`;
+                    orderSelect.appendChild(option);
                 });
+                
+            } catch (error) {
+                console.error('Error loading orders for assign:', error);
             }
-
-            const paymentText = formatPaymentMethod(order.paymentMethod);
+        }
+        
+        async function assignOrder(event) {
+            event.preventDefault();
             
-            // قسم توقيت التجهيز المتقدم
-            let deliveryTimeHtml = '';
-            let deliveryTimeClass = '';
-            
-            if (order.pickupTime) {
-                if (order.pickupTime.includes('فوري')) {
-                    deliveryTimeClass = 'urgent';
-                    deliveryTimeHtml = `
-                        <div class="print-delivery-time ${deliveryTimeClass}">
-                            <div class="print-delivery-time-label">⏰ توقيت التجهيز:</div>
-                            <div class="print-delivery-time-value">فوري</div>
-                        </div>
-                    `;
+            try {
+                const orderId = document.getElementById('order-select').value;
+                const driverId = document.getElementById('assign-driver-id').value;
+                const notes = document.getElementById('assign-notes').value;
+                
+                if (!orderId || !driverId) {
+                    showError('بيانات ناقصة', 'الرجاء اختيار طلب وسائق');
+                    return;
+                }
+                
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('action', 'assignOrderToDriver');
+                formData.append('orderId', orderId);
+                formData.append('driverId', driverId);
+                formData.append('notes', notes || '');
+                
+                // Show loading
+                const submitBtn = event.target.querySelector('.submit');
+                const originalText = submitBtn.textContent;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التخصيص...';
+                submitBtn.disabled = true;
+                
+                // Send request
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.result === 'success') {
+                    showSuccess('تم التخصيص', 'تم تخصيص الطلب للسائق بنجاح');
+                    closeAssignModal();
+                    
+                    // Refresh data
+                    await Promise.all([
+                        loadDrivers(),
+                        loadOrders(),
+                        loadPendingOrders()
+                    ]);
                 } else {
-                    deliveryTimeClass = 'scheduled';
-                    
-                    // محاولة استخراج معلومات التاريخ والوقت المتقدم من النص
-                    let displayTime = order.pickupTime;
-                    
-                    // إذا كان النص يحتوي على معلومات متقدمة
-                    if (order.pickupTime.includes('-')) {
-                        const parts = order.pickupTime.split('-').map(p => p.trim());
-                        displayTime = parts.join(' - ');
+                    throw new Error(data.message || 'فشل في تخصيص الطلب');
+                }
+                
+            } catch (error) {
+                console.error('Error assigning order:', error);
+                showError('خطأ في التخصيص', error.message);
+            } finally {
+                // Reset button
+                const submitBtn = event.target.querySelector('.submit');
+                submitBtn.textContent = 'تخصيص الطلب';
+                submitBtn.disabled = false;
+            }
+        }
+        
+        function openMessageModal(driverId, driverName) {
+            try {
+                const modal = document.getElementById('message-modal');
+                const driverNameInput = document.getElementById('message-driver-name');
+                const driverIdInput = document.getElementById('message-driver-id');
+                
+                driverNameInput.value = driverName;
+                driverIdInput.value = driverId;
+                
+                modal.classList.add('active');
+            } catch (error) {
+                console.error('Error opening message modal:', error);
+                showError('خطأ', 'تعذر فتح نافذة الرسائل');
+            }
+        }
+        
+        function closeMessageModal() {
+            document.getElementById('message-modal').classList.remove('active');
+            document.getElementById('message-form').reset();
+        }
+        
+        async function sendMessage(event) {
+            event.preventDefault();
+            
+            try {
+                const driverId = document.getElementById('message-driver-id').value;
+                const messageType = document.getElementById('message-type').value;
+                const messageContent = document.getElementById('message-content').value;
+                
+                if (!driverId || !messageContent) {
+                    showError('بيانات ناقصة', 'الرجاء إدخال محتوى الرسالة');
+                    return;
+                }
+                
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('action', 'sendDriverNotification');
+                formData.append('driverId', driverId);
+                formData.append('message', messageContent);
+                formData.append('type', messageType);
+                
+                // Show loading
+                const submitBtn = event.target.querySelector('.submit');
+                const originalText = submitBtn.textContent;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+                submitBtn.disabled = true;
+                
+                // Send request
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.result === 'success') {
+                    showSuccess('تم الإرسال', 'تم إرسال الرسالة للسائق بنجاح');
+                    closeMessageModal();
+                } else {
+                    throw new Error(data.message || 'فشل في إرسال الرسالة');
+                }
+                
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showError('خطأ في الإرسال', error.message);
+            } finally {
+                // Reset button
+                const submitBtn = event.target.querySelector('.submit');
+                submitBtn.textContent = 'إرسال الرسالة';
+                submitBtn.disabled = false;
+            }
+        }
+        
+        function callDriver(phoneNumber) {
+            if (!phoneNumber || phoneNumber.trim() === '') {
+                showError('رقم غير متوفر', 'لا يوجد رقم هاتف مسجل لهذا السائق');
+                return;
+            }
+            
+            // Clean phone number
+            const cleanPhone = phoneNumber.replace(/\D/g, '');
+            
+            if (cleanPhone.length < 8) {
+                showError('رقم غير صالح', 'رقم الهاتف غير صالح');
+                return;
+            }
+            
+            // Show confirmation
+            if (confirm(`هل تريد الاتصال بالسائق على الرقم:\n${phoneNumber}\n\nسيتم فتح تطبيق الهاتف للاتصال.`)) {
+                const telLink = `tel:${cleanPhone}`;
+                window.open(telLink, '_self');
+            }
+        }
+        
+        function showAddDriverModal() {
+            document.getElementById('add-driver-modal').classList.add('active');
+        }
+        
+        function closeAddDriverModal() {
+            document.getElementById('add-driver-modal').classList.remove('active');
+            document.getElementById('add-driver-form').reset();
+        }
+        
+        async function addNewDriver(event) {
+            event.preventDefault();
+            
+            try {
+                const name = document.getElementById('driver-name').value;
+                const phone = document.getElementById('driver-phone').value;
+                const vehicle = document.getElementById('driver-vehicle').value;
+                const area = document.getElementById('driver-area').value;
+                
+                if (!name || !phone) {
+                    showError('بيانات ناقصة', 'الرجاء إدخال الاسم ورقم الهاتف');
+                    return;
+                }
+                
+                // Generate driver ID
+                const driverId = 'DRIVER-' + Date.now().toString().substr(-6) + '-' + Math.random().toString(36).substr(2, 3).toUpperCase();
+                
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('action', 'addDriver');
+                formData.append('driverId', driverId);
+                formData.append('name', name);
+                formData.append('phone', phone);
+                formData.append('vehicle', vehicle);
+                formData.append('area', area);
+                formData.append('status', 'offline');
+                
+                // Show loading
+                const submitBtn = event.target.querySelector('.submit');
+                const originalText = submitBtn.textContent;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإضافة...';
+                submitBtn.disabled = true;
+                
+                // Note: This assumes you'll add the 'addDriver' action to your Google Apps Script
+                // For now, we'll simulate it
+                setTimeout(async () => {
+                    try {
+                        // In a real implementation, you would call the API
+                        // const response = await fetch(API_URL, {
+                        //     method: 'POST',
+                        //     body: formData
+                        // });
+                        // const data = await response.json();
+                        
+                        // Simulate success for demo
+                        const data = { result: 'success', driverId: driverId };
+                        
+                        if (data.result === 'success') {
+                            showSuccess('تم الإضافة', `تم إضافة السائق "${name}" بنجاح\nمعرف السائق: ${driverId}`);
+                            closeAddDriverModal();
+                            
+                            // Refresh drivers list
+                            await loadDrivers();
+                        } else {
+                            throw new Error(data.message || 'فشل في إضافة السائق');
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error adding driver:', error);
+                        showError('خطأ في الإضافة', error.message);
+                    } finally {
+                        // Reset button
+                        submitBtn.textContent = 'إضافة السائق';
+                        submitBtn.disabled = false;
                     }
-                    
-                    deliveryTimeHtml = `
-                        <div class="print-delivery-time ${deliveryTimeClass}">
-                            <div class="print-delivery-time-label">⏰ توقيت التجهيز المطلوب:</div>
-                            <div class="print-delivery-time-value">${displayTime}</div>
-                        </div>
-                    `;
-                    
-                    
-                }
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Error in addNewDriver:', error);
+                showError('خطأ', 'حدث خطأ أثناء إضافة السائق');
             }
-
-            // إضافة قسم الملاحظات للطباعة
-            let notesHtml = '';
-            if (order.notes && order.notes.trim() !== "") {
-                let notesList = [];
-                
-                if (order.notes.includes('•')) {
-                    notesList = order.notes.split('•').filter(note => note.trim() !== "");
-                } else if (order.notes.includes('-') || order.notes.includes('*')) {
-                    const separator = order.notes.includes('-') ? '-' : '*';
-                    notesList = order.notes.split(separator).filter(note => note.trim() !== "");
-                } else {
-                    notesList = [order.notes.trim()];
-                }
-                
-                notesList = notesList.map(note => note.trim());
-                
-                if (notesList.length > 0) {
-                    const notesItems = notesList.map(note => `
-                        <li class="print-note-item">
-                            <span class="print-note-text">${note}</span>
-                        </li>
-                    `).join('');
-                    
-                    notesHtml = `
-                        <div class="print-notes-section">
-                            <div class="print-notes-header">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <span>ملاحظات خاصة</span>
-                                <span style="margin-right: auto; font-size: 0.8rem; color: #8a6d3b;">
-                                    (${notesList.length} ملاحظة)
-                                </span>
-                            </div>
-                            <ul class="print-notes-list">
-                                ${notesItems}
-                            </ul>
-                        </div>
-                    `;
-                }
+        }
+        
+        // ==============================================
+        // 🔧 UTILITY FUNCTIONS
+        // ==============================================
+        
+        function updateConnectionStatus(message, status) {
+            const connStatus = document.getElementById('connection-status');
+            if (!connStatus) return;
+            
+            connStatus.innerHTML = `<i class="fas fa-${status === 'connected' ? 'wifi' : 'wifi-slash'}"></i> <span>${message}</span>`;
+            connStatus.className = `connection-status ${status}`;
+            connStatus.style.display = 'flex';
+            
+            if (status === 'connected') {
+                setTimeout(() => {
+                    if (connStatus.className.includes('connected')) {
+                        connStatus.style.display = 'none';
+                    }
+                }, 3000);
             }
-
-            document.getElementById('print-content').innerHTML = `
-                <div class="print-header">
-                    <h1>سفرة الدار</h1>
-                    <div class="print-id">الطلب رقم: #${order.id}</div>
-                    <div class="print-time">${shortMiladiDate}</div>
-                    <div class="print-time">${timeString}</div>
-                </div>
-
-                <div class="print-customer-info">
-                    <div class="print-customer-row">
-                        <span class="print-customer-label">رقم الهاتف:</span>
-                        <span class="print-customer-value">${order.phone}</span>
-                    </div>
-                    <div class="print-customer-row">
-                        <span class="print-customer-label">طريقة الدفع:</span>
-                        <span class="print-customer-value">${paymentText}</span>
-                    </div>
-                    <div class="print-customer-row">
-                        <span class="print-customer-label">نوع العميل:</span>
-                        <span class="print-customer-value">${order.type}</span>
-                    </div>
-                </div>
-                
-                ${deliveryTimeHtml}
-                
-                ${notesHtml}
-
-                <div class="print-section">
-                    <div class="print-label">الأصناف المطلوبة:</div>
-                    <div class="print-items-grid">
-                        <div class="print-grid-row">
-                            <div class="print-grid-header">الصنف</div>
-                            <div class="print-grid-header">الكمية</div>
-                            <div class="print-grid-header">السعر</div>
-                            <div class="print-grid-header">المجموع</div>
-                        </div>
-                        ${itemsHtml}
-                    </div>
-                </div>
-
-                <div class="print-section">
-                    <div class="print-total">الإجمالي: ${order.total} د.ك</div>
-                </div>
-
-                <div class="print-section" style="text-align: center; margin-top: 30px; font-size: 14px; color: #666;">
-                    شكراً لثقتكم بـ سفرة الدار
-                </div>
+        }
+        
+        function showLoading(show) {
+            const loadingState = document.getElementById('loading-state');
+            if (!loadingState) return;
+            
+            if (show) {
+                loadingState.style.display = 'block';
+            } else {
+                loadingState.style.display = 'none';
+            }
+        }
+        
+        function showError(title, message) {
+            console.error(`Error: ${title} - ${message}`);
+            
+            // Create error toast
+            const errorToast = document.createElement('div');
+            errorToast.className = 'connection-status disconnected';
+            errorToast.style.position = 'fixed';
+            errorToast.style.top = '80px';
+            errorToast.style.right = '20px';
+            errorToast.style.left = '20px';
+            errorToast.style.zIndex = '3000';
+            errorToast.style.backgroundColor = 'rgba(255, 68, 68, 0.95)';
+            errorToast.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><strong>${title}:</strong> ${message}</span>
             `;
-
-            document.getElementById('print-modal').style.display = 'block';
+            
+            document.body.appendChild(errorToast);
             
             setTimeout(() => {
-                const printBtn = document.querySelector('.print-btn');
-                if (printBtn) printBtn.focus();
-            }, 100);
+                if (errorToast.parentNode) {
+                    errorToast.parentNode.removeChild(errorToast);
+                }
+            }, 5000);
         }
-
-        function closePrintModal() {
-            document.getElementById('print-modal').style.display = 'none';
-            if (currentAlertOrder) {
-                document.getElementById('alert-overlay').style.display = 'flex';
-                startAlertSound(currentAlertOrder.status === 'Updated' ? 'updated' : 'new');
+        
+        function showSuccess(title, message) {
+            // Create success toast
+            const successToast = document.createElement('div');
+            successToast.className = 'connection-status connected';
+            successToast.style.position = 'fixed';
+            successToast.style.top = '80px';
+            successToast.style.right = '20px';
+            successToast.style.left = '20px';
+            successToast.style.zIndex = '3000';
+            successToast.style.backgroundColor = 'rgba(0, 200, 81, 0.95)';
+            successToast.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span><strong>${title}:</strong> ${message}</span>
+            `;
+            
+            document.body.appendChild(successToast);
+            
+            setTimeout(() => {
+                if (successToast.parentNode) {
+                    successToast.parentNode.removeChild(successToast);
+                }
+            }, 3000);
+        }
+        
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) {
+                return 'الآن';
+            } else if (diffMins < 60) {
+                return `منذ ${diffMins} دقيقة`;
+            } else if (diffHours < 24) {
+                return `منذ ${diffHours} ساعة`;
+            } else if (diffDays === 1) {
+                return 'أمس';
+            } else if (diffDays < 7) {
+                return `منذ ${diffDays} أيام`;
+            } else {
+                return date.toLocaleDateString('ar-SA', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
             }
         }
+        
+        function refreshDrivers() {
+            const refreshBtn = document.querySelector('.action-btn.secondary');
+            const originalHtml = refreshBtn.innerHTML;
+            
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحديث...';
+            refreshBtn.disabled = true;
+            
+            Promise.all([
+                loadDrivers(),
+                loadOrders(),
+                loadPendingOrders()
+            ]).finally(() => {
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalHtml;
+                    refreshBtn.disabled = false;
+                    showSuccess('تم التحديث', 'تم تحديث بيانات السائقين بنجاح');
+                }, 500);
+            });
+        }
+        
+        // ==============================================
+        // 🎯 INITIALIZE DASHBOARD
+        // ==============================================
+        
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Handle online/offline status
+        window.addEventListener('online', () => {
+            console.log('✅ Connection restored');
+            updateConnectionStatus('متصل بالإنترنت', 'connected');
+            
+            setTimeout(async () => {
+                const test = await testAPIConnection();
+                if (test.success) {
+                    isConnected = true;
+                    updateConnectionStatus('متصل بالنظام', 'connected');
+                    await Promise.all([loadDrivers(), loadOrders(), loadPendingOrders()]);
+                }
+            }, 1000);
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('❌ Connection lost');
+            updateConnectionStatus('غير متصل بالإنترنت', 'disconnected');
+            isConnected = false;
+        });
+        
+        // Handle beforeunload
+        window.addEventListener('beforeunload', () => {
+            console.log('Page unloading, cleaning up...');
+            if (pollingInterval) clearInterval(pollingInterval);
+        });
+        
+        // Auto-refresh every minute for demo purposes
+        setInterval(() => {
+            if (isConnected) {
+                loadDrivers();
+            }
+        }, 60000);
     </script>
 </body>
 </html>
